@@ -1,0 +1,17 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 9
+
+    # Analyse first-party application code. Pest's fluent arch/test DSL and
+    # framework config stubs are excluded (Larastan can't follow Pest's
+    # PendingCalls chain; tests are gated by Pest + arch rules instead).
+    paths:
+        - app
+        - routes
+        - database
+
+    # Spatie Data magic + framework boot dirs we don't statically analyse.
+    excludePaths:
+        - app/Domain/*/Models/*

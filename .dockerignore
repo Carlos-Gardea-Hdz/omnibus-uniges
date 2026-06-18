@@ -1,0 +1,17 @@
+.git
+.github
+node_modules
+vendor
+public/build
+public/hot
+storage/app/letterheads
+storage/logs/*.log
+.env
+.env.*
+!.env.example
+secrets/
+database/*.sqlite
+*.dump
+*.sql.gz
+tests
+.phpunit.cache
