@@ -13,5 +13,12 @@
     "validation.jury.payment_unverified": "El pago debe estar verificado antes de asignar el jurado.",
     "payment.submitted": "Pago registrado.",
     "payment.verified": "Pago verificado.",
-    "jury.assigned": "Jurado asignado. El estudiante avanza a la ceremonia."
+    "jury.assigned": "Jurado asignado. El estudiante avanza a la ceremonia.",
+    "ceremony.scheduled": "Ceremonia agendada.",
+    "ceremony.graduated": "El estudiante ha sido titulado. Se generó el folio del diploma.",
+    "validation.ceremony.invalid": "La fecha de la ceremonia no es válida.",
+    "validation.ceremony.not_future": "La fecha de la ceremonia debe ser futura.",
+    "validation.ceremony.not_weekday": "La ceremonia debe programarse en un día hábil (lunes a viernes).",
+    "validation.ceremony.out_of_hours": "La ceremonia debe programarse en horario laboral (08:00–18:00).",
+    "validation.ceremony.not_passed": "La ceremonia aún no se ha realizado; no es posible titular todavía."
 }

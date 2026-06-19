@@ -89,3 +89,36 @@ arch('jury enums are string-backed')
     ->expect('App\Domain\Jury\Enums')
     ->toBeEnums()
     ->toBeStringBackedEnums();
+
+/*
+ * Slice 004 — Ceremony domain (the 7→8→9 final stretch). Like Jury, Ceremony
+ * legitimately leans on Graduation (the state machine, Student, StudentStatusChanged)
+ * and Academic (Program) — so the "only Shared" SPEC sketch is deliberately NOT
+ * adopted (spec Open Q C). The load-bearing rule is the same one Jury keeps: the
+ * domain must never reach into Identity. Final/string-backed are already covered by
+ * the broad App\Domain rules; they stay explicit so a future narrowing cannot
+ * silently relax the Ceremony layer.
+ */
+
+arch('cross-domain isolation: Ceremony does not import Identity')
+    ->expect('App\Domain\Ceremony')
+    ->not->toUse('App\Domain\Identity');
+
+arch('ceremony actions are final')
+    ->expect('App\Domain\Ceremony\Actions')
+    ->classes()
+    ->toBeFinal();
+
+arch('ceremony events are final')
+    ->expect('App\Domain\Ceremony\Events')
+    ->classes()
+    ->toBeFinal();
+
+arch('ceremony services are final')
+    ->expect('App\Domain\Ceremony\Services')
+    ->classes()
+    ->toBeFinal();
+
+arch('ceremony value objects are immutable')
+    ->expect('App\Domain\Ceremony\ValueObjects')
+    ->toBeReadonly();

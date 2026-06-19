@@ -118,6 +118,26 @@ export default function Status({ student_id, status, control_number, full_name }
                         />
                     </section>
 
+                    {/* Terminal celebration once the 9-state pipeline completes.
+                        Compared as a raw string cast to the type per the type-only
+                        generated-enum rule (no runtime value import). */}
+                    {currentStatus === ('graduated' as GraduationStatus) ? (
+                        <section
+                            aria-labelledby="graduated-heading"
+                            className="mt-6 rounded-lg border border-success/40 bg-success/10 px-6 py-5 text-center"
+                        >
+                            <h2
+                                id="graduated-heading"
+                                className="text-lg font-semibold text-success"
+                            >
+                                {t('status.graduated.title')}
+                            </h2>
+                            <p className="mt-1 text-sm text-fg-muted">
+                                {t('status.graduated.body')}
+                            </p>
+                        </section>
+                    ) : null}
+
                     {/* Polite live region: announces each pushed transition. */}
                     <p className="sr-only" aria-live="polite">
                         {lastMessageKey ? t(lastMessageKey) : ''}

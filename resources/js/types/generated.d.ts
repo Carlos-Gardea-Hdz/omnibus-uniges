@@ -18,6 +18,10 @@ rejection_reason: string;
 export type ReviewFormBData = {
 observations: string;
 };
+export type ScheduleCeremonyData = {
+ceremony_date: string;
+ceremony_location: string;
+};
 export type SubmitFormBData = {
 control_number: string;
 first_name: string;

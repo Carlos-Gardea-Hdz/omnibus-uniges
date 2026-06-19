@@ -140,4 +140,52 @@ class StudentFactory extends Factory
             'payment_verified' => true,
         ]);
     }
+
+    /** Student with a jury seated (step 7), ready for ceremony scheduling. */
+    public function juryAssigned(): static
+    {
+        return $this->paymentVerified()->state(fn (array $attributes): array => [
+            'status' => GraduationStatus::JuryAssigned,
+        ]);
+    }
+
+    /**
+     * Student with a ceremony scheduled (step 8) — a future weekday inside
+     * business hours, so graduation is still blocked until the date passes.
+     */
+    public function ceremonyScheduled(): static
+    {
+        return $this->juryAssigned()->state(function (array $attributes): array {
+            $date = now()->addWeeks(2)->setTime(10, 0, 0);
+
+            while ($date->isWeekend()) {
+                $date->addDay();
+            }
+
+            return [
+                'status' => GraduationStatus::CeremonyScheduled,
+                'ceremony_date' => $date,
+                'ceremony_location' => 'Auditorio Principal',
+            ];
+        });
+    }
+
+    /**
+     * Student whose scheduled ceremony has already PASSED (step 8) — eligible to
+     * be marked graduated.
+     */
+    public function ceremonyPassed(): static
+    {
+        return $this->ceremonyScheduled()->state(function (array $attributes): array {
+            $date = now()->subWeek()->setTime(10, 0, 0);
+
+            while ($date->isWeekend()) {
+                $date->subDay();
+            }
+
+            return [
+                'ceremony_date' => $date,
+            ];
+        });
+    }
 }

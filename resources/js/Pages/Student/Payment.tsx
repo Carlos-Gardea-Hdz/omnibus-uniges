@@ -20,6 +20,9 @@ import TextField from '@/Components/form/TextField';
  *     the workflow has moved on (registration is now closed)
  *   - `.jury.assigned` → the JuryAssigned broadcast that accompanies the same
  *     transition, used as a redundant live signal that the stage is complete
+ *   - `.ceremony.scheduled` / `.student.graduated` → the later 7→8 and terminal
+ *     8→9 transitions; redundant live signals that keep the page reflecting an
+ *     advanced workflow even if the student lingers on this screen
  *
  * Props are snake_case, matching Student\PaymentController::index() exactly
  * (the controller render payload is the single source of truth; an Inertia
@@ -52,10 +55,9 @@ export default function Payment({
     const [advanced, setAdvanced] = useState(false);
     const [live, setLive] = useState(false);
 
-    const { data, setData, post, processing, errors, recentlySuccessful } =
-        useForm<PaymentValues>({
-            payment_reference: payment_reference ?? '',
-        });
+    const { data, setData, post, processing, errors, recentlySuccessful } = useForm<PaymentValues>({
+        payment_reference: payment_reference ?? '',
+    });
 
     // Keep the live status in sync when Inertia replaces the page props.
     useEffect(() => {
@@ -80,11 +82,17 @@ export default function Payment({
             // The 6→7 advance: jury assigned. Reflect that registration is closed.
             .listen('.graduation.step.completed', onStepCompleted)
             // Redundant signal carried by the JuryAssigned broadcast.
-            .listen('.jury.assigned', onStepCompleted);
+            .listen('.jury.assigned', onStepCompleted)
+            // Later advances (7→8, terminal 8→9): the workflow has moved well
+            // past payment, so reflect the advanced state regardless.
+            .listen('.ceremony.scheduled', onStepCompleted)
+            .listen('.student.graduated', onStepCompleted);
 
         return () => {
             channel.stopListening('.graduation.step.completed');
             channel.stopListening('.jury.assigned');
+            channel.stopListening('.ceremony.scheduled');
+            channel.stopListening('.student.graduated');
             echo.leave(`student.${student_id}`);
             echo.disconnect();
         };

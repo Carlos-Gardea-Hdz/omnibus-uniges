@@ -143,3 +143,87 @@ it('rejects re-assigning a jury (JuryAssigned → JuryAssigned self-loop)', func
         GraduationStatus::JuryAssigned,
     );
 })->throws(InvalidStatusTransitionException::class);
+
+/*
+ * Slice 004 (ceremony + graduation) — the final two legs of the same machine.
+ * 7 → 8 (JuryAssigned → CeremonyScheduled) is the ScheduleCeremonyAction edge;
+ * 8 → 9 (CeremonyScheduled → Graduated) is the MarkAsGraduatedAction edge. Both
+ * are already legal in allowedTransitions(); these tests pin them, prove the
+ * illegal skips/back-edges are rejected loudly, and assert Graduated is terminal.
+ */
+
+it('permits the 7 → 8 JuryAssigned → CeremonyScheduled transition', function (): void {
+    $machine = new GraduationStateMachine;
+
+    expect($machine->canTransition(
+        GraduationStatus::JuryAssigned,
+        GraduationStatus::CeremonyScheduled,
+    ))->toBeTrue();
+
+    $machine->assertCanTransition(
+        GraduationStatus::JuryAssigned,
+        GraduationStatus::CeremonyScheduled,
+    );
+});
+
+it('permits the 8 → 9 CeremonyScheduled → Graduated transition', function (): void {
+    $machine = new GraduationStateMachine;
+
+    expect($machine->canTransition(
+        GraduationStatus::CeremonyScheduled,
+        GraduationStatus::Graduated,
+    ))->toBeTrue();
+
+    $machine->assertCanTransition(
+        GraduationStatus::CeremonyScheduled,
+        GraduationStatus::Graduated,
+    );
+});
+
+it('rejects graduating before the ceremony is scheduled (JuryAssigned → Graduated skip)', function (): void {
+    $machine = new GraduationStateMachine;
+
+    expect($machine->canTransition(
+        GraduationStatus::JuryAssigned,
+        GraduationStatus::Graduated,
+    ))->toBeFalse();
+
+    $machine->assertCanTransition(
+        GraduationStatus::JuryAssigned,
+        GraduationStatus::Graduated,
+    );
+})->throws(InvalidStatusTransitionException::class);
+
+it('rejects walking the ceremony edge backwards (CeremonyScheduled → JuryAssigned)', function (): void {
+    $machine = new GraduationStateMachine;
+
+    expect($machine->canTransition(
+        GraduationStatus::CeremonyScheduled,
+        GraduationStatus::JuryAssigned,
+    ))->toBeFalse();
+
+    $machine->assertCanTransition(
+        GraduationStatus::CeremonyScheduled,
+        GraduationStatus::JuryAssigned,
+    );
+})->throws(InvalidStatusTransitionException::class);
+
+it('refuses every transition out of the terminal Graduated state', function (
+    GraduationStatus $to,
+): void {
+    $machine = new GraduationStateMachine;
+
+    expect($machine->canTransition(GraduationStatus::Graduated, $to))->toBeFalse();
+
+    $machine->assertCanTransition(GraduationStatus::Graduated, $to);
+})->with([
+    'graduated → jury' => [GraduationStatus::JuryAssigned],
+    'graduated → ceremony' => [GraduationStatus::CeremonyScheduled],
+    'graduated → form b' => [GraduationStatus::FormBPending],
+    'graduated → graduated (self-loop)' => [GraduationStatus::Graduated],
+])->throws(InvalidStatusTransitionException::class);
+
+it('reports Graduated as terminal with no allowed transitions', function (): void {
+    expect(GraduationStatus::Graduated->isTerminal())->toBeTrue()
+        ->and(GraduationStatus::Graduated->allowedTransitions())->toBe([]);
+});

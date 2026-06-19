@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Graduation\CeremonyController;
 use App\Http\Controllers\Graduation\DocumentReviewController;
 use App\Http\Controllers\Graduation\FormBReviewController;
 use App\Http\Controllers\Graduation\JuryController;
@@ -63,4 +64,9 @@ Route::middleware('role:admin,super_admin,secretary')->group(function (): void {
     Route::get('/admin/graduation/jury', [JuryController::class, 'index'])->name('admin.graduation.jury.index');
     Route::post('/admin/graduation/jury/{student}/verify-payment', [JuryController::class, 'verifyPayment'])->name('admin.graduation.jury.verify-payment');
     Route::post('/admin/graduation/jury/{student}/assign', [JuryController::class, 'assign'])->name('admin.graduation.jury.assign');
+
+    // Ceremony scheduling (7→8) + graduation completion (8→9), the terminal transitions (SPEC §004).
+    Route::get('/admin/graduation/ceremony', [CeremonyController::class, 'index'])->name('admin.graduation.ceremony.index');
+    Route::post('/admin/graduation/ceremony/{student}/schedule', [CeremonyController::class, 'schedule'])->name('admin.graduation.ceremony.schedule');
+    Route::post('/admin/graduation/ceremony/{student}/graduate', [CeremonyController::class, 'graduate'])->name('admin.graduation.ceremony.graduate');
 });

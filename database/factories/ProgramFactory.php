@@ -22,8 +22,12 @@ class ProgramFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => 'PRG-'.Str::upper(fake()->unique()->bothify('??##')),
-            'name' => fake()->unique()->randomElement([
+            // Dash-free code: the diploma folio is {YEAR}-{CODE}-{SEQ}, so a code
+            // with its own dash would make the folio ambiguous. Real program
+            // codes (ISC, IIND, …) are dash-free; the code stays DB-unique.
+            'code' => 'PRG'.Str::upper(fake()->unique()->bothify('??##')),
+            // Name is not a unique DB column; don't exhaust a tiny unique() pool.
+            'name' => fake()->randomElement([
                 'Ingeniería en Sistemas Computacionales',
                 'Ingeniería Industrial',
                 'Ingeniería en Gestión Empresarial',

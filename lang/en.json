@@ -13,5 +13,12 @@
     "validation.jury.payment_unverified": "The payment must be verified before the jury can be assigned.",
     "payment.submitted": "Payment recorded.",
     "payment.verified": "Payment verified.",
-    "jury.assigned": "Jury assigned. The student advances to the ceremony."
+    "jury.assigned": "Jury assigned. The student advances to the ceremony.",
+    "ceremony.scheduled": "Ceremony scheduled.",
+    "ceremony.graduated": "The student has graduated. The diploma folio was generated.",
+    "validation.ceremony.invalid": "The ceremony date is invalid.",
+    "validation.ceremony.not_future": "The ceremony date must be in the future.",
+    "validation.ceremony.not_weekday": "The ceremony must be scheduled on a weekday (Monday–Friday).",
+    "validation.ceremony.out_of_hours": "The ceremony must be scheduled within business hours (08:00–18:00).",
+    "validation.ceremony.not_passed": "The ceremony has not taken place yet; the student cannot graduate."
 }
