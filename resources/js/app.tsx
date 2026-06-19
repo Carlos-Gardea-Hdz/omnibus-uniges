@@ -14,7 +14,7 @@ void createInertiaApp({
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.tsx`,
-            import.meta.glob('./Pages/**/*.tsx'),
+            import.meta.glob(['./Pages/**/*.tsx', '!./Pages/**/*.test.tsx', '!./Pages/**/__tests__/**']),
         ),
     setup({ el, App, props }) {
         const tree = (

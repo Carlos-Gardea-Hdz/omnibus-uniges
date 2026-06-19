@@ -1,0 +1,6 @@
+{
+    "form.success": "Your Form B was submitted successfully.",
+    "form.control_number_taken": "That control number is already registered to another student.",
+    "admin.review.approved": "Form B approved. The student advances to the annexes stage.",
+    "admin.review.rejected": "Form B rejected. The observations were sent to the student."
+}

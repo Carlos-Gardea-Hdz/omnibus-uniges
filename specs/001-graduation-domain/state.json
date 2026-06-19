@@ -1,0 +1,27 @@
+{
+  "slug": "001-graduation-domain",
+  "title": "Graduation Domain — Form B vertical slice + real-time status",
+  "branch": "feature/graduation-domain",
+  "ssot": "SPEC.md",
+  "phase": "plan",
+  "gate_resolved": { "scope": "end-to-end incl. HTTP layer (Inertia/React + Echo)", "git": "branch + PR, no self-merge", "A_reverb": "now", "B_catalog": "schema-first minimal models", "C_slice_end": "Form B approval (state 4)" },
+  "phases": {
+    "explore": { "status": "done", "by": "Explore subagent", "notes": "SPEC §3.3/§5.7/§6.3.11/§7.2/§8.4/§9.1/§15.1 mapped; existing GraduationStatus enum verified production-ready, fully aligned with SPEC." },
+    "specify": { "status": "done", "artifact": "spec.md", "gate": "approved (scope expanded to HTTP layer)" },
+    "plan": { "status": "done", "artifact": "plan.md", "decisions": "D1 ID=bigint+ADR-001, D2 Sail compose, D3 phpstan L9, D4 isolation, D5 full students table, D6 catalog schema-first" },
+    "tasks": { "status": "done", "artifact": "tasks.md" },
+    "implement": { "status": "in-progress", "done": ["Phase 0: docker-compose.yml + .env + create-testing-database.sql — Sail env GREEN (pgsql18+valkey8, baseline migrate OK)", "ADR-001 written"], "next": ["catalog migrations/models/factories", "Address VO", "users.role", "students table", "Student model", "DTOs", "event", "Actions", "HTTP layer", "React pages", "tests"] },
+    "verify": { "status": "pending" },
+    "review": { "status": "pending" },
+    "archive": { "status": "pending" }
+  },
+  "gate_decisions": {
+    "A_reverb_now": "proposed: dispatch + server broadcast now, defer client consumption",
+    "B_catalog_depth": "proposed: schema-first migrations + minimal models for 5 catalog tables",
+    "C_slice_ends_at_state_4": "proposed: slice ends at Form B approval (AnnexesPending)"
+  },
+  "scope_in": ["Student model + students migration", "5 catalog prerequisite migrations", "GraduationStateMachine + InvalidStatusTransitionException", "SubmitFormBAction/ApproveFormBAction/RejectFormBAction", "StudentStatusChanged event (ShouldBroadcast)", "SubmitFormBData/ReviewFormBData DTOs", "ControlNumber/GPA/Email/Address VOs", "Pest unit/feature/arch tests on PostgreSQL"],
+  "scope_out": ["HTTP/controllers/Inertia pages/routes (spec 002)", "documents 4-6", "jury 6-7", "ceremony 7-8", "graduation 8-9", "Annex/PDF gen", "frontend Echo consumption"],
+  "ultracode": true,
+  "notes": "Ultracode on: Plan/Implement/Review phases to use workflow orchestration + adversarial verification."
+}

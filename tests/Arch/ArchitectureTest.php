@@ -40,3 +40,13 @@ arch('controllers never touch Eloquent directly')
 arch('cross-domain isolation: Graduation does not import Identity')
     ->expect('App\Domain\Graduation')
     ->not->toUse('App\Domain\Identity');
+
+arch('graduation actions are final')
+    ->expect('App\Domain\Graduation\Actions')
+    ->classes()
+    ->toBeFinal();
+
+arch('graduation events are final')
+    ->expect('App\Domain\Graduation\Events')
+    ->classes()
+    ->toBeFinal();

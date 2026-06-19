@@ -1,0 +1,6 @@
+{
+    "form.success": "Tu Formato B se envió correctamente.",
+    "form.control_number_taken": "El número de control ya está registrado por otro estudiante.",
+    "admin.review.approved": "Formato B aprobado. El estudiante avanza a la etapa de anexos.",
+    "admin.review.rejected": "Formato B rechazado. Se notificaron las observaciones al estudiante."
+}
