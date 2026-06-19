@@ -118,4 +118,26 @@ class StudentFactory extends Factory
             'advisor_id' => Professor::factory(),
         ]);
     }
+
+    /** Student who has reached the payment stage (step 6) but not yet paid. */
+    public function paymentPending(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => GraduationStatus::PaymentPending,
+            'form_b_submitted_at' => now()->subDays(5),
+            'form_b_approved' => true,
+            'annex_iii_completed' => true,
+            'documents_completed_at' => now()->subDay(),
+        ]);
+    }
+
+    /** Student at the payment stage whose payment has been recorded and verified. */
+    public function paymentVerified(): static
+    {
+        return $this->paymentPending()->state(fn (array $attributes): array => [
+            'payment_reference' => 'PAY-'.fake()->numerify('########'),
+            'paid_at' => now(),
+            'payment_verified' => true,
+        ]);
+    }
 }

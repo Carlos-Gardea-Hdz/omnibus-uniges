@@ -8,5 +8,10 @@
     "documents.approved": "Documento aprobado.",
     "documents.rejected": "Documento rechazado. Se notificaron las observaciones al estudiante.",
     "validation.documents.mime": "El tipo de archivo no está permitido para este documento.",
-    "validation.documents.max_size": "El archivo excede el tamaño máximo permitido."
+    "validation.documents.max_size": "El archivo excede el tamaño máximo permitido.",
+    "validation.payment.wrong_state": "El pago solo puede registrarse mientras la titulación está en la etapa de pago.",
+    "validation.jury.payment_unverified": "El pago debe estar verificado antes de asignar el jurado.",
+    "payment.submitted": "Pago registrado.",
+    "payment.verified": "Pago verificado.",
+    "jury.assigned": "Jurado asignado. El estudiante avanza a la ceremonia."
 }

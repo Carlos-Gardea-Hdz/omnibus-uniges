@@ -1,5 +1,12 @@
+export type AssignJuryData = {
+president_professor_id: number;
+secretary_professor_id: number;
+vocal_professor_id: number;
+substitute_professor_id: number | null;
+};
 export enum DocumentStatus { Pending = 'pending', Uploaded = 'uploaded', Approved = 'approved', Rejected = 'rejected' };
 export enum GraduationStatus { FormBPending = 'form_b_pending', FormBReview = 'form_b_review', FormBRejected = 'form_b_rejected', AnnexesPending = 'annexes_pending', AnnexIiiPending = 'annex_iii_pending', PaymentPending = 'payment_pending', JuryAssigned = 'jury_assigned', CeremonyScheduled = 'ceremony_scheduled', Graduated = 'graduated' };
+export enum JuryRole { President = 'president', Secretary = 'secretary', Vocal = 'vocal', Substitute = 'substitute' };
 export type LoginData = {
 email: string;
 password: string;
@@ -33,6 +40,9 @@ address_neighborhood: string | null;
 address_ext_number: string | null;
 address_int_number: string | null;
 address_postal_code: number | null;
+};
+export type SubmitPaymentData = {
+payment_reference: string;
 };
 export type UploadDocumentData = {
 required_document_id: number;

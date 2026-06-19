@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Graduation\DocumentReviewController;
 use App\Http\Controllers\Graduation\FormBReviewController;
+use App\Http\Controllers\Graduation\JuryController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Student\DocumentController;
 use App\Http\Controllers\Student\DocumentDownloadController;
 use App\Http\Controllers\Student\FormBController;
+use App\Http\Controllers\Student\PaymentController;
 use App\Http\Controllers\Student\StatusController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +30,10 @@ Route::middleware('role:student')->group(function (): void {
     Route::get('/student/documents', [DocumentController::class, 'index'])->name('student.documents.index');
     Route::post('/student/documents/begin', [DocumentController::class, 'begin'])->name('student.documents.begin');
     Route::post('/student/documents/upload', [DocumentController::class, 'upload'])->name('student.documents.upload');
+
+    // Payment stage that precedes jury assignment (SPEC §003).
+    Route::get('/student/payment', [PaymentController::class, 'index'])->name('student.payment.index');
+    Route::post('/student/payment', [PaymentController::class, 'submit'])->name('student.payment.submit');
 });
 
 /*
@@ -52,4 +58,9 @@ Route::middleware('role:admin,super_admin,secretary')->group(function (): void {
     Route::get('/admin/graduation/documents', [DocumentReviewController::class, 'index'])->name('admin.graduation.documents.index');
     Route::post('/admin/graduation/documents/{studentDocument}/approve', [DocumentReviewController::class, 'approve'])->name('admin.graduation.documents.approve');
     Route::post('/admin/graduation/documents/{studentDocument}/reject', [DocumentReviewController::class, 'reject'])->name('admin.graduation.documents.reject');
+
+    // Payment verification + jury assignment, the 6→7 transition (SPEC §003).
+    Route::get('/admin/graduation/jury', [JuryController::class, 'index'])->name('admin.graduation.jury.index');
+    Route::post('/admin/graduation/jury/{student}/verify-payment', [JuryController::class, 'verifyPayment'])->name('admin.graduation.jury.verify-payment');
+    Route::post('/admin/graduation/jury/{student}/assign', [JuryController::class, 'assign'])->name('admin.graduation.jury.assign');
 });

@@ -8,5 +8,10 @@
     "documents.approved": "Document approved.",
     "documents.rejected": "Document rejected. The observations were sent to the student.",
     "validation.documents.mime": "That file type is not allowed for this document.",
-    "validation.documents.max_size": "The file exceeds the maximum allowed size."
+    "validation.documents.max_size": "The file exceeds the maximum allowed size.",
+    "validation.payment.wrong_state": "Payment can only be submitted while the graduation is at the payment stage.",
+    "validation.jury.payment_unverified": "The payment must be verified before the jury can be assigned.",
+    "payment.submitted": "Payment recorded.",
+    "payment.verified": "Payment verified.",
+    "jury.assigned": "Jury assigned. The student advances to the ceremony."
 }

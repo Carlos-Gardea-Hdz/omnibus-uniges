@@ -93,3 +93,53 @@ it('reports the offending states in the thrown message', function (): void {
         'form_b_pending → graduated',
     );
 });
+
+/*
+ * Slice 003 (jury) edges of the same machine: the only legal step out of
+ * PaymentPending is JuryAssigned (the 6 → 7 transition the AssignJuryAction
+ * drives). Reaching JuryAssigned from any earlier state, or looping on it, must
+ * be rejected loudly.
+ */
+
+it('permits the 6 → 7 PaymentPending → JuryAssigned transition', function (): void {
+    $machine = new GraduationStateMachine;
+
+    expect($machine->canTransition(
+        GraduationStatus::PaymentPending,
+        GraduationStatus::JuryAssigned,
+    ))->toBeTrue();
+
+    // Must not throw on the legal jury edge.
+    $machine->assertCanTransition(
+        GraduationStatus::PaymentPending,
+        GraduationStatus::JuryAssigned,
+    );
+});
+
+it('rejects jumping to JuryAssigned before payment (AnnexIiiPending → JuryAssigned)', function (): void {
+    $machine = new GraduationStateMachine;
+
+    expect($machine->canTransition(
+        GraduationStatus::AnnexIiiPending,
+        GraduationStatus::JuryAssigned,
+    ))->toBeFalse();
+
+    $machine->assertCanTransition(
+        GraduationStatus::AnnexIiiPending,
+        GraduationStatus::JuryAssigned,
+    );
+})->throws(InvalidStatusTransitionException::class);
+
+it('rejects re-assigning a jury (JuryAssigned → JuryAssigned self-loop)', function (): void {
+    $machine = new GraduationStateMachine;
+
+    expect($machine->canTransition(
+        GraduationStatus::JuryAssigned,
+        GraduationStatus::JuryAssigned,
+    ))->toBeFalse();
+
+    $machine->assertCanTransition(
+        GraduationStatus::JuryAssigned,
+        GraduationStatus::JuryAssigned,
+    );
+})->throws(InvalidStatusTransitionException::class);

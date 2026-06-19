@@ -11,6 +11,7 @@ use App\Domain\Academic\Models\StudyPlan;
 use App\Domain\Graduation\Enums\GraduationStatus;
 use App\Domain\Graduation\ValueObjects\ControlNumber;
 use App\Domain\Graduation\ValueObjects\Gpa;
+use App\Domain\Jury\Models\JuryAssignment;
 use App\Domain\Shared\ValueObjects\Address;
 use App\Models\User;
 use Database\Factories\StudentFactory;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -34,6 +36,7 @@ use Illuminate\Support\Carbon;
  * @property-read Program $program
  * @property-read GraduationType $graduationType
  * @property-read Collection<int, StudentDocument> $documents
+ * @property-read JuryAssignment|null $juryAssignment
  */
 final class Student extends Model
 {
@@ -159,6 +162,14 @@ final class Student extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(StudentDocument::class);
+    }
+
+    /**
+     * @return HasOne<JuryAssignment, $this>
+     */
+    public function juryAssignment(): HasOne
+    {
+        return $this->hasOne(JuryAssignment::class);
     }
 
     /** Control number as a validated value object. */

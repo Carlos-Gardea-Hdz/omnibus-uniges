@@ -62,3 +62,30 @@ arch('graduation services are final')
 arch('the DocumentStatusChanged event is final')
     ->expect('App\Domain\Graduation\Events\DocumentStatusChanged')
     ->toBeFinal();
+
+/*
+ * Slice 003 — Jury domain. The cross-domain isolation rule is the load-bearing
+ * one: Jury may lean on Graduation (it advances the same machine) but must never
+ * reach into Identity. The final/string-backed rules below are already covered
+ * by the broad `App\Domain` rules; they are kept explicit so a future refactor
+ * that narrows those rules cannot silently relax the Jury layer.
+ */
+
+arch('cross-domain isolation: Jury does not import Identity')
+    ->expect('App\Domain\Jury')
+    ->not->toUse('App\Domain\Identity');
+
+arch('jury actions are final')
+    ->expect('App\Domain\Jury\Actions')
+    ->classes()
+    ->toBeFinal();
+
+arch('jury events are final')
+    ->expect('App\Domain\Jury\Events')
+    ->classes()
+    ->toBeFinal();
+
+arch('jury enums are string-backed')
+    ->expect('App\Domain\Jury\Enums')
+    ->toBeEnums()
+    ->toBeStringBackedEnums();
