@@ -91,6 +91,26 @@ class StudentFactory extends Factory
         ]);
     }
 
+    /** Student in the document-upload stage (Annex III pending). */
+    public function documentsStage(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => GraduationStatus::AnnexIiiPending,
+            'form_b_submitted_at' => now()->subDays(3),
+            'form_b_approved' => true,
+        ]);
+    }
+
+    /** Student ready to begin the document stage (annexes pending). */
+    public function annexesPending(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => GraduationStatus::AnnexesPending,
+            'form_b_submitted_at' => now()->subDays(3),
+            'form_b_approved' => true,
+        ]);
+    }
+
     /** Attach a real advisor (professor) instead of leaving it null. */
     public function withAdvisor(): static
     {

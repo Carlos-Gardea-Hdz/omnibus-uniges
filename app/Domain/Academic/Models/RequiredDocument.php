@@ -4,33 +4,33 @@ declare(strict_types=1);
 
 namespace App\Domain\Academic\Models;
 
-use Database\Factories\GraduationTypeFactory;
-use Illuminate\Database\Eloquent\Collection;
+use Database\Factories\RequiredDocumentFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
+ * A document a student must upload to graduate, keyed by graduation type
+ * via the graduation_type_required_document pivot (SPEC §6.3.9).
+ *
  * @property int $id
- * @property string $code
  * @property string $name
- * @property bool $requires_advisor
- * @property-read Collection<int, RequiredDocument> $requiredDocuments
+ * @property string|null $description
+ * @property string $allowed_mimes CSV of allowed MIME types
+ * @property int $max_size_kb
  */
-final class GraduationType extends Model
+final class RequiredDocument extends Model
 {
-    /** @use HasFactory<GraduationTypeFactory> */
+    /** @use HasFactory<RequiredDocumentFactory> */
     use HasFactory;
-
-    use SoftDeletes;
 
     /** @var list<string> */
     protected $fillable = [
-        'code',
         'name',
-        'requires_advisor',
+        'description',
+        'allowed_mimes',
+        'max_size_kb',
     ];
 
     /**
@@ -39,26 +39,26 @@ final class GraduationType extends Model
     protected function casts(): array
     {
         return [
-            'requires_advisor' => 'boolean',
+            'max_size_kb' => 'integer',
         ];
     }
 
     /**
-     * @return BelongsToMany<RequiredDocument, $this>
+     * @return BelongsToMany<GraduationType, $this>
      */
-    public function requiredDocuments(): BelongsToMany
+    public function graduationTypes(): BelongsToMany
     {
         return $this->belongsToMany(
-            RequiredDocument::class,
+            GraduationType::class,
             'graduation_type_required_document',
         );
     }
 
     /**
-     * @return GraduationTypeFactory
+     * @return RequiredDocumentFactory
      */
     protected static function newFactory(): Factory
     {
-        return GraduationTypeFactory::new();
+        return RequiredDocumentFactory::new();
     }
 }

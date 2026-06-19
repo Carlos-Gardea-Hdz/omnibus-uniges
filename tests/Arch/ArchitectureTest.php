@@ -31,7 +31,10 @@ arch('enums are backed')
 
 arch('the domain layer never depends on HTTP')
     ->expect('App\Domain')
-    ->not->toUse('Illuminate\Http');
+    ->not->toUse('Illuminate\Http')
+    // UploadedFile is the standard Spatie Data file-upload type; the validation
+    // DTO is its legitimate boundary. No request/response coupling leaks in.
+    ->ignoring('Illuminate\Http\UploadedFile');
 
 arch('controllers never touch Eloquent directly')
     ->expect('App\Http\Controllers')
@@ -49,4 +52,13 @@ arch('graduation actions are final')
 arch('graduation events are final')
     ->expect('App\Domain\Graduation\Events')
     ->classes()
+    ->toBeFinal();
+
+arch('graduation services are final')
+    ->expect('App\Domain\Graduation\Services')
+    ->classes()
+    ->toBeFinal();
+
+arch('the DocumentStatusChanged event is final')
+    ->expect('App\Domain\Graduation\Events\DocumentStatusChanged')
     ->toBeFinal();

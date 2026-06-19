@@ -14,9 +14,11 @@ use App\Domain\Graduation\ValueObjects\Gpa;
 use App\Domain\Shared\ValueObjects\Address;
 use App\Models\User;
 use Database\Factories\StudentFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -28,6 +30,10 @@ use Illuminate\Support\Carbon;
  * @property float $gpa
  * @property GraduationStatus $status
  * @property Carbon|null $form_b_submitted_at
+ * @property Carbon|null $documents_completed_at
+ * @property-read Program $program
+ * @property-read GraduationType $graduationType
+ * @property-read Collection<int, StudentDocument> $documents
  */
 final class Student extends Model
 {
@@ -145,6 +151,14 @@ final class Student extends Model
     public function advisor(): BelongsTo
     {
         return $this->belongsTo(Professor::class, 'advisor_id');
+    }
+
+    /**
+     * @return HasMany<StudentDocument, $this>
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(StudentDocument::class);
     }
 
     /** Control number as a validated value object. */

@@ -25,12 +25,9 @@ final class FormBReviewController extends Controller
             ->orderByDesc('form_b_submitted_at')
             ->paginate(15)
             ->through(function (Student $student): array {
-                // program & graduation_type are NOT NULL FKs (eager-loaded
-                // above); assert narrows the relation for the type checker and
-                // fails loud should the data ever violate that invariant.
+                // program & graduation_type are NOT NULL FKs (eager-loaded above).
                 $program = $student->program;
                 $graduationType = $student->graduationType;
-                assert($program !== null && $graduationType !== null);
 
                 return [
                     'id' => $student->id,

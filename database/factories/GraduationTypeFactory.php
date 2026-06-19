@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Domain\Academic\Models\GraduationType;
+use App\Domain\Academic\Models\RequiredDocument;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -54,5 +55,18 @@ class GraduationTypeFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'requires_advisor' => false,
         ]);
+    }
+
+    /**
+     * Attach a set of required documents to this graduation type via the
+     * graduation_type_required_document pivot. Defaults to two new documents.
+     */
+    public function withRequiredDocuments(int $count = 2): static
+    {
+        return $this->afterCreating(function (GraduationType $graduationType) use ($count): void {
+            $graduationType->requiredDocuments()->attach(
+                RequiredDocument::factory()->count($count)->create()->pluck('id'),
+            );
+        });
     }
 }

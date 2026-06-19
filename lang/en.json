@@ -2,5 +2,11 @@
     "form.success": "Your Form B was submitted successfully.",
     "form.control_number_taken": "That control number is already registered to another student.",
     "admin.review.approved": "Form B approved. The student advances to the annexes stage.",
-    "admin.review.rejected": "Form B rejected. The observations were sent to the student."
+    "admin.review.rejected": "Form B rejected. The observations were sent to the student.",
+    "documents.stage_started": "The document stage (Annex III) has started.",
+    "documents.uploaded": "Your document was uploaded successfully.",
+    "documents.approved": "Document approved.",
+    "documents.rejected": "Document rejected. The observations were sent to the student.",
+    "validation.documents.mime": "That file type is not allowed for this document.",
+    "validation.documents.max_size": "The file exceeds the maximum allowed size."
 }

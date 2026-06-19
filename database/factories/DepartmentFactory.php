@@ -20,8 +20,9 @@ class DepartmentFactory extends Factory
      */
     public function definition(): array
     {
+        // Name is not a unique DB column; don't exhaust a tiny unique() pool.
         /** @var string $area */
-        $area = fake()->unique()->randomElement([
+        $area = fake()->randomElement([
             'Ingeniería en Sistemas Computacionales',
             'Ingeniería Industrial',
             'Ingeniería Electrónica',
