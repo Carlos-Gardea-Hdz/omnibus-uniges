@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Academic\Exceptions\CatalogInUseException;
 use App\Domain\Graduation\Exceptions\InvalidStatusTransitionException;
 use App\Http\Middleware\DemoSessionMiddleware;
 use App\Http\Middleware\EnsureRole;
@@ -52,5 +53,15 @@ return Application::configure(basePath: dirname(__DIR__))
             return $request->expectsJson()
                 ? response()->json(['message' => $e->getMessage()], 422)
                 : back()->withErrors(['status' => $e->getMessage()]);
+        });
+
+        // Deleting a catalog row another record still references is a referential
+        // guard, not a server fault: surface it as the same graceful 302 + a
+        // 'catalog' field error on web (422 for JSON), never an unhandled 500.
+        // Slice 009 — beside the transition handler above.
+        $exceptions->render(function (CatalogInUseException $e, Request $request) {
+            return $request->expectsJson()
+                ? response()->json(['message' => $e->getMessage()], 422)
+                : back()->withErrors(['catalog' => $e->getMessage()]);
         });
     })->create();

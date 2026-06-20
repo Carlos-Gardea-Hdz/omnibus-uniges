@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $code
  * @property string $name
  * @property int $department_id
+ * @property-read Department $department
  */
 final class Program extends Model
 {

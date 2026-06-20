@@ -37,10 +37,36 @@ final class DemoSessionMiddleware
      * permanent diploma folio (SPEC §13, §004) — the canonical destructive op.
      * Extend this list for future delete/import/settings routes.
      *
+     * The 18 academic-catalog mutations (spec 009) edit the shared baseline
+     * catalogs — which are NOT DemoScope-scoped — so a demo write would escape the
+     * sandbox and mutate real shared data for every visitor. Their route names are
+     * listed here as defence in depth: the routes are already super_admin-only (a
+     * role NO DemoPreset mints), but this guard fails the request with a graceful
+     * 302 + flash even if the gate ever widened. The index/hub GETs are read-only
+     * and intentionally NOT listed.
+     *
      * @var list<string>
      */
     private const DESTRUCTIVE_ROUTE_NAMES = [
         'admin.graduation.ceremony.graduate',
+        'admin.catalogs.departments.store',
+        'admin.catalogs.departments.update',
+        'admin.catalogs.departments.destroy',
+        'admin.catalogs.programs.store',
+        'admin.catalogs.programs.update',
+        'admin.catalogs.programs.destroy',
+        'admin.catalogs.professors.store',
+        'admin.catalogs.professors.update',
+        'admin.catalogs.professors.destroy',
+        'admin.catalogs.graduation-types.store',
+        'admin.catalogs.graduation-types.update',
+        'admin.catalogs.graduation-types.destroy',
+        'admin.catalogs.study-plans.store',
+        'admin.catalogs.study-plans.update',
+        'admin.catalogs.study-plans.destroy',
+        'admin.catalogs.required-documents.store',
+        'admin.catalogs.required-documents.update',
+        'admin.catalogs.required-documents.destroy',
     ];
 
     public function handle(Request $request, Closure $next): Response

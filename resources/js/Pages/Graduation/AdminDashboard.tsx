@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import type { PageProps } from '@/types';
 import { useLocale } from '@/Contexts/LocaleContext';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import DemoBanner from '@/Components/DemoBanner';
@@ -63,7 +64,11 @@ const TILE_ACCENT: Record<string, string> = {
 
 export default function AdminDashboard({ status_breakdown, queues, totals }: AdminDashboardProps) {
     const { t } = useLocale();
+    const { auth } = usePage<PageProps>().props;
     const empty = totals.students === 0;
+    // The academic catalog hub is super_admin-only (SLICE 009); only that role
+    // sees the entry point, mirroring the server-side role:super_admin gate.
+    const isSuperAdmin = auth?.user?.role === 'super_admin';
 
     return (
         <>
@@ -74,6 +79,14 @@ export default function AdminDashboard({ status_breakdown, queues, totals }: Adm
                         {t('app.name')}
                     </span>
                     <nav className="flex items-center gap-2" aria-label="utilities">
+                        {isSuperAdmin ? (
+                            <Link
+                                href="/admin/catalogs"
+                                className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-medium text-fg transition-colors hover:bg-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                            >
+                                {t('catalogs.nav.link')}
+                            </Link>
+                        ) : null}
                         <LanguageSwitcher />
                     </nav>
                 </header>

@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\Catalog\CatalogHubController;
+use App\Http\Controllers\Admin\Catalog\DepartmentController;
+use App\Http\Controllers\Admin\Catalog\GraduationTypeController;
+use App\Http\Controllers\Admin\Catalog\ProfessorController;
+use App\Http\Controllers\Admin\Catalog\ProgramController;
+use App\Http\Controllers\Admin\Catalog\RequiredDocumentController;
+use App\Http\Controllers\Admin\Catalog\StudyPlanController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\DemoLoginController;
 use App\Http\Controllers\Graduation\AdminDashboardController;
@@ -134,3 +141,56 @@ Route::middleware(['auth', 'demo', 'role:admin,super_admin,secretary'])->group(f
         Route::get('/judge-certificates', [JudgeCertificatesReportController::class, 'index'])->name('judge-certificates');
     });
 });
+
+/*
+ * Academic-catalog administration (spec 009) — the last UNIGES slice. The six
+ * shared baseline catalogs (departments, programs, professors, graduation types,
+ * study plans, required documents) are super_admin-only: a role NO DemoPreset can
+ * ever mint, so the surface is structurally demo-proof. The 'demo' middleware
+ * still runs (a no-op for real sessions) and BLOCKS every store/update/destroy
+ * for a demo session via DESTRUCTIVE_ROUTE_NAMES — defence in depth atop the gate.
+ *
+ * Catalogs are NOT DemoScope-scoped (shared baseline, spec 008 §2.2): there is no
+ * demo context here, so every query reads the real shared rows. Each mutation
+ * hands a validated Spatie Data DTO (web failure = 302 + session errors, never
+ * 422) to its Action, which owns the write; deleting an in-use catalog row is a
+ * graceful 302 + error (CatalogInUseException), never a 500. Route-model binding
+ * resolves each row by its bound param ({department}, {program}, {professor},
+ * {graduationType}, {studyPlan}, {requiredDocument}).
+ */
+Route::middleware(['auth', 'demo', 'role:super_admin'])
+    ->prefix('admin/catalogs')
+    ->name('admin.catalogs.')
+    ->group(function (): void {
+        Route::get('/', [CatalogHubController::class, 'index'])->name('index');
+
+        Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
+        Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
+        Route::put('/departments/{department}', [DepartmentController::class, 'update'])->name('departments.update');
+        Route::delete('/departments/{department}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
+
+        Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
+        Route::post('/programs', [ProgramController::class, 'store'])->name('programs.store');
+        Route::put('/programs/{program}', [ProgramController::class, 'update'])->name('programs.update');
+        Route::delete('/programs/{program}', [ProgramController::class, 'destroy'])->name('programs.destroy');
+
+        Route::get('/professors', [ProfessorController::class, 'index'])->name('professors.index');
+        Route::post('/professors', [ProfessorController::class, 'store'])->name('professors.store');
+        Route::put('/professors/{professor}', [ProfessorController::class, 'update'])->name('professors.update');
+        Route::delete('/professors/{professor}', [ProfessorController::class, 'destroy'])->name('professors.destroy');
+
+        Route::get('/graduation-types', [GraduationTypeController::class, 'index'])->name('graduation-types.index');
+        Route::post('/graduation-types', [GraduationTypeController::class, 'store'])->name('graduation-types.store');
+        Route::put('/graduation-types/{graduationType}', [GraduationTypeController::class, 'update'])->name('graduation-types.update');
+        Route::delete('/graduation-types/{graduationType}', [GraduationTypeController::class, 'destroy'])->name('graduation-types.destroy');
+
+        Route::get('/study-plans', [StudyPlanController::class, 'index'])->name('study-plans.index');
+        Route::post('/study-plans', [StudyPlanController::class, 'store'])->name('study-plans.store');
+        Route::put('/study-plans/{studyPlan}', [StudyPlanController::class, 'update'])->name('study-plans.update');
+        Route::delete('/study-plans/{studyPlan}', [StudyPlanController::class, 'destroy'])->name('study-plans.destroy');
+
+        Route::get('/required-documents', [RequiredDocumentController::class, 'index'])->name('required-documents.index');
+        Route::post('/required-documents', [RequiredDocumentController::class, 'store'])->name('required-documents.store');
+        Route::put('/required-documents/{requiredDocument}', [RequiredDocumentController::class, 'update'])->name('required-documents.update');
+        Route::delete('/required-documents/{requiredDocument}', [RequiredDocumentController::class, 'destroy'])->name('required-documents.destroy');
+    });

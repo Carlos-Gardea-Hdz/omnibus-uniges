@@ -143,3 +143,34 @@ arch('reporting services are final')
     ->expect('App\Domain\Reporting\Services')
     ->classes()
     ->toBeFinal();
+
+/*
+ * Slice 009 — Academic catalog CRUD (the first mutating code inside Academic). The
+ * Delete Actions legitimately READ the Graduation / Jury models (Student,
+ * StudyPlan, JuryAssignment, StudentDocument) for the in-use pre-check — so, as
+ * with Reporting / Ceremony / Jury (spec 009 §10.8), the "only Shared" sketch is
+ * deliberately NOT adopted. The load-bearing rule is the same: Academic must never
+ * reach into Identity (authorization stays in the HTTP middleware:
+ * role:super_admin + demo, never the domain). Final on Actions / Data / Exceptions
+ * is enforced explicitly so a future narrowing of the broad App\Domain rule cannot
+ * silently relax this layer; the DTOs are also TypeScript-tagged Spatie Data.
+ */
+
+arch('cross-domain isolation: Academic does not import Identity')
+    ->expect('App\Domain\Academic')
+    ->not->toUse('App\Domain\Identity');
+
+arch('academic actions are final')
+    ->expect('App\Domain\Academic\Actions')
+    ->classes()
+    ->toBeFinal();
+
+arch('academic data DTOs are final')
+    ->expect('App\Domain\Academic\Data')
+    ->classes()
+    ->toBeFinal();
+
+arch('academic exceptions are final')
+    ->expect('App\Domain\Academic\Exceptions')
+    ->classes()
+    ->toBeFinal();

@@ -25,5 +25,11 @@
     "auth.throttle": "Demasiados intentos de inicio de sesión. Inténtalo de nuevo en :seconds segundo(s).",
     "demo.expired": "Tu sesión de demostración expiró. Inicia una nueva cuando quieras.",
     "demo.blocked": "Esa acción está deshabilitada en modo demostración: haría un cambio permanente.",
-    "demo.throttled": "Demasiadas sesiones de demostración desde esta red. Inténtalo de nuevo en un momento."
+    "demo.throttled": "Demasiadas sesiones de demostración desde esta red. Inténtalo de nuevo en un momento.",
+    "catalogs.created": "Registro de catálogo creado correctamente.",
+    "catalogs.updated": "Registro de catálogo actualizado correctamente.",
+    "catalogs.deleted": "Registro de catálogo eliminado correctamente.",
+    "catalogs.error.in_use": "No se puede eliminar: este registro está en uso por otros datos.",
+    "catalogs.error.code_taken": "Ese código ya está registrado en este catálogo.",
+    "catalogs.error.email_taken": "Ese correo electrónico ya está registrado para otro profesor."
 }

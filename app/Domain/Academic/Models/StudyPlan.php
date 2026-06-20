@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $code
  * @property string $name
  * @property int $program_id
+ * @property-read Program $program
  */
 final class StudyPlan extends Model
 {

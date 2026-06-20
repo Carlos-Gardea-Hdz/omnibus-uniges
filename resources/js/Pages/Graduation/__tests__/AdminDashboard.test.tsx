@@ -13,7 +13,9 @@ import { ThemeProvider } from '@/Contexts/ThemeContext';
 vi.mock('@inertiajs/react', () => ({
     Head: ({ title }: { title?: string }) => <title>{title}</title>,
     Link: ({ children, ...props }: React.ComponentProps<'a'>) => <a {...props}>{children}</a>,
-    usePage: () => ({ props: { demo: null } }),
+    // `auth` defaults to a non-super_admin so the optional Catalogs nav link
+    // (SLICE 009) stays hidden — the existing assertions count exactly 5 links.
+    usePage: () => ({ props: { demo: null, auth: { user: { role: 'admin' } } } }),
 }));
 
 import AdminDashboard from '@/Pages/Graduation/AdminDashboard';

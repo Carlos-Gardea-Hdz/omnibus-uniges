@@ -25,5 +25,11 @@
     "auth.throttle": "Too many login attempts. Please try again in :seconds second(s).",
     "demo.expired": "Your demo session has expired. Start a new one whenever you like.",
     "demo.blocked": "That action is disabled in demo mode — it would make a permanent change.",
-    "demo.throttled": "Too many demo sessions from this network. Please try again in a little while."
+    "demo.throttled": "Too many demo sessions from this network. Please try again in a little while.",
+    "catalogs.created": "Catalog record created successfully.",
+    "catalogs.updated": "Catalog record updated successfully.",
+    "catalogs.deleted": "Catalog record deleted successfully.",
+    "catalogs.error.in_use": "Cannot delete: this record is still in use by other data.",
+    "catalogs.error.code_taken": "That code is already registered in this catalog.",
+    "catalogs.error.email_taken": "That email address is already registered for another professor."
 }
