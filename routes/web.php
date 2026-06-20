@@ -10,6 +10,11 @@ use App\Http\Controllers\Graduation\DocumentReviewController;
 use App\Http\Controllers\Graduation\FormBReviewController;
 use App\Http\Controllers\Graduation\JuryController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\Reporting\CohortsReportController;
+use App\Http\Controllers\Reporting\GraduatesReportController;
+use App\Http\Controllers\Reporting\JudgeCertificatesReportController;
+use App\Http\Controllers\Reporting\ReportingHubController;
+use App\Http\Controllers\Reporting\TerminalEfficiencyReportController;
 use App\Http\Controllers\Student\DashboardController;
 use App\Http\Controllers\Student\DocumentController;
 use App\Http\Controllers\Student\DocumentDownloadController;
@@ -112,4 +117,20 @@ Route::middleware(['auth', 'demo', 'role:admin,super_admin,secretary'])->group(f
     Route::get('/admin/graduation/ceremony', [CeremonyController::class, 'index'])->name('admin.graduation.ceremony.index');
     Route::post('/admin/graduation/ceremony/{student}/schedule', [CeremonyController::class, 'schedule'])->name('admin.graduation.ceremony.schedule');
     Route::post('/admin/graduation/ceremony/{student}/graduate', [CeremonyController::class, 'graduate'])->name('admin.graduation.ceremony.graduate');
+
+    /*
+     * Read-only staff analytics (SPEC §3.7 / spec 008): a navigation hub plus the
+     * four reports — graduates roster (REPORT-02), terminal efficiency (REPORT-01),
+     * cohorts overview (REPORT-03) and judge certificates (CERT-01). Every report
+     * is a single DemoScope-scoped aggregate (no N+1, no withoutGlobalScopes — a
+     * demo coordinator's reports count ONLY their sandbox). GET-only: no Action, no
+     * DTO, no mutation. Excel/PDF/Word export is DEFERRED to a later slice.
+     */
+    Route::prefix('admin/reports')->name('admin.reports.')->group(function (): void {
+        Route::get('/', [ReportingHubController::class, 'index'])->name('index');
+        Route::get('/graduates', [GraduatesReportController::class, 'index'])->name('graduates');
+        Route::get('/terminal-efficiency', [TerminalEfficiencyReportController::class, 'index'])->name('terminal-efficiency');
+        Route::get('/cohorts', [CohortsReportController::class, 'index'])->name('cohorts');
+        Route::get('/judge-certificates', [JudgeCertificatesReportController::class, 'index'])->name('judge-certificates');
+    });
 });

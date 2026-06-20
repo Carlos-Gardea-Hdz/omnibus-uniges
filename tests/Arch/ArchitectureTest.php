@@ -122,3 +122,24 @@ arch('ceremony services are final')
 arch('ceremony value objects are immutable')
     ->expect('App\Domain\Ceremony\ValueObjects')
     ->toBeReadonly();
+
+/*
+ * Slice 008 — Reporting domain (read-only staff analytics). Reporting
+ * legitimately READS the Graduation / Jury / Academic models (Student,
+ * JuryAssignment, Program, GraduationType, Professor) to aggregate them — so the
+ * "only Shared" SPEC sketch is deliberately NOT adopted (spec 008 Open Q J). The
+ * load-bearing rule is the same one Jury / Ceremony keep: the domain must never
+ * reach into Identity (authorization stays in HTTP middleware, never the domain).
+ * The services are read-only (no Action / event / mutation); final is enforced
+ * explicitly so a future narrowing of the broad App\Domain rule cannot silently
+ * relax this layer.
+ */
+
+arch('cross-domain isolation: Reporting does not import Identity')
+    ->expect('App\Domain\Reporting')
+    ->not->toUse('App\Domain\Identity');
+
+arch('reporting services are final')
+    ->expect('App\Domain\Reporting\Services')
+    ->classes()
+    ->toBeFinal();

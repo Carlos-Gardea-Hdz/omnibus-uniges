@@ -23,7 +23,9 @@ class StudyPlanFactory extends Factory
     {
         return [
             'code' => 'SP-'.Str::upper(fake()->unique()->bothify('??##')),
-            'name' => 'Plan de Estudios '.fake()->unique()->numberBetween(2010, 2024),
+            // Name is not a unique DB column; numberBetween(2010,2024) has only 15
+            // values, so unique() exhausts past 15 rows — don't wrap it in unique().
+            'name' => 'Plan de Estudios '.fake()->numberBetween(2010, 2024),
             'program_id' => Program::factory(),
         ];
     }
