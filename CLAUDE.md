@@ -34,12 +34,17 @@ Blueprints: ANALISIS-LEGACY-MIGRACION-UNIGES.md + MASTER-BLUEPRINT-UNIGES.md
 Note: blueprints say Laravel 11 + PostgreSQL 16 — ignore, we use Laravel 12 + PostgreSQL 18
 
 ## Critical: 9-state graduation workflow
-PENDING → DOCUMENTS_SUBMITTED → FORMAT_B_REVIEW → FORMAT_B_APPROVED
-→ SYNOD_ASSIGNED → CEREMONY_SCHEDULED → CEREMONY_COMPLETED
-→ DOCUMENTS_VALIDATED → GRADUATED
+The implemented `GraduationStatus` enum (app/Domain/Graduation/Enums) — these are
+the REAL backing values, not the older draft names:
 
-Transitions are strict — never allow skipping states.
-Use GraduationStatus enum with canTransitionTo() method.
+form_b_pending → form_b_review → annexes_pending → annex_iii_pending
+→ payment_pending → jury_assigned → ceremony_scheduled → graduated
+
+Plus form_b_rejected — a BRANCH off form_b_review (rejection), not a linear step.
+
+Transitions are strict — never allow skipping states. The enum owns
+`allowedTransitions()` / `canTransitionTo()`; the GraduationStateMachine enforces
+them and dispatches StudentStatusChanged (Reverb broadcast) on every move.
 
 ## Artisan workflow
 ```bash
