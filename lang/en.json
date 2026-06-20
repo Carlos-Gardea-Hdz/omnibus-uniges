@@ -20,5 +20,7 @@
     "validation.ceremony.not_future": "The ceremony date must be in the future.",
     "validation.ceremony.not_weekday": "The ceremony must be scheduled on a weekday (Monday–Friday).",
     "validation.ceremony.out_of_hours": "The ceremony must be scheduled within business hours (08:00–18:00).",
-    "validation.ceremony.not_passed": "The ceremony has not taken place yet; the student cannot graduate."
+    "validation.ceremony.not_passed": "The ceremony has not taken place yet; the student cannot graduate.",
+    "auth.failed": "These credentials do not match our records.",
+    "auth.throttle": "Too many login attempts. Please try again in :seconds second(s)."
 }

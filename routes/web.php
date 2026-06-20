@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Graduation\CeremonyController;
 use App\Http\Controllers\Graduation\DocumentReviewController;
 use App\Http\Controllers\Graduation\FormBReviewController;
@@ -17,11 +18,28 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', LandingController::class)->name('landing');
 
 /*
- * Student self-service (SPEC §7). A student owns their own Format B and may
- * watch their graduation status in real time. Gated by the 'role' alias —
- * authorization never leaks into the domain layer.
+ * Session authentication (SPEC §3.1 AUTH-01 / AUTH-06, §7.1). The 'guest'
+ * alias keeps an already-authenticated user off the login screen; 'auth'
+ * gates logout. Brute-force throttling lives in AuthenticateUserAction, persisted
+ * in login_attempts via the LoginThrottle service (SPEC §10.3).
+ * Laravel ships the 'auth' and 'guest' middleware aliases by default — no
+ * registration needed in bootstrap/app.php.
  */
-Route::middleware('role:student')->group(function (): void {
+Route::middleware('guest')->group(function (): void {
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
+});
+
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');
+
+/*
+ * Student self-service (SPEC §7). A student owns their own Format B and may
+ * watch their graduation status in real time. Gated by 'auth' (must be signed
+ * in) then the 'role' alias — authorization never leaks into the domain layer.
+ */
+Route::middleware(['auth', 'role:student'])->group(function (): void {
     Route::get('/student/form-b', [FormBController::class, 'create'])->name('student.form-b.create');
     Route::post('/student/form-b', [FormBController::class, 'store'])->name('student.form-b.store');
     Route::put('/student/form-b', [FormBController::class, 'update'])->name('student.form-b.update');
@@ -48,9 +66,10 @@ Route::get('/student/documents/{document}/download', [DocumentDownloadController
 
 /*
  * Staff review of submitted Format B (SPEC §7). Admins, super admins and
- * secretaries may approve or reject a student's submission.
+ * secretaries may approve or reject a student's submission. Gated by 'auth'
+ * (must be signed in) then the 'role' alias.
  */
-Route::middleware('role:admin,super_admin,secretary')->group(function (): void {
+Route::middleware(['auth', 'role:admin,super_admin,secretary'])->group(function (): void {
     Route::get('/admin/graduation/review', [FormBReviewController::class, 'index'])->name('admin.graduation.review');
     Route::post('/admin/graduation/{student}/approve', [FormBReviewController::class, 'approve'])->name('admin.graduation.approve');
     Route::post('/admin/graduation/{student}/reject', [FormBReviewController::class, 'reject'])->name('admin.graduation.reject');

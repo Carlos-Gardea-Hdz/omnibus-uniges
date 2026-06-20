@@ -184,5 +184,14 @@
     "admin.ceremony.guard.weekday": "La ceremonia debe agendarse en un día hábil (lunes a viernes).",
     "admin.ceremony.guard.hours": "La ceremonia debe agendarse en horario hábil (08:00 a 17:59).",
     "admin.ceremony.guard.not_passed": "Disponible una vez que la fecha de la ceremonia haya pasado.",
-    "admin.ceremony.folio": "Folio de diploma"
+    "admin.ceremony.folio": "Folio de diploma",
+    "auth.login.title": "Iniciar sesión",
+    "auth.login.subtitle": "Ingresa tus credenciales para acceder a tu proceso de titulación.",
+    "auth.login.field.email": "Correo electrónico",
+    "auth.login.field.password": "Contraseña",
+    "auth.login.remember": "Mantener la sesión iniciada",
+    "auth.login.submit": "Entrar",
+    "auth.login.signing_in": "Iniciando sesión…",
+    "auth.login.forgot_password": "¿Olvidaste tu contraseña?",
+    "auth.login.failed": "Las credenciales no coinciden con nuestros registros."
 }

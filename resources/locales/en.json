@@ -184,5 +184,14 @@
     "admin.ceremony.guard.weekday": "The ceremony must be scheduled on a weekday (Monday to Friday).",
     "admin.ceremony.guard.hours": "The ceremony must be scheduled during business hours (08:00 to 17:59).",
     "admin.ceremony.guard.not_passed": "Available once the ceremony date has passed.",
-    "admin.ceremony.folio": "Diploma folio"
+    "admin.ceremony.folio": "Diploma folio",
+    "auth.login.title": "Sign in",
+    "auth.login.subtitle": "Enter your credentials to access your graduation process.",
+    "auth.login.field.email": "Email address",
+    "auth.login.field.password": "Password",
+    "auth.login.remember": "Keep me signed in",
+    "auth.login.submit": "Sign in",
+    "auth.login.signing_in": "Signing in…",
+    "auth.login.forgot_password": "Forgot your password?",
+    "auth.login.failed": "These credentials do not match our records."
 }

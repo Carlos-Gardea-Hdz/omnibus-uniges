@@ -66,4 +66,14 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes): array => ['role' => UserRole::Secretary]);
     }
+
+    public function assistantSecretary(): static
+    {
+        return $this->state(fn (array $attributes): array => ['role' => UserRole::AssistantSecretary]);
+    }
+
+    public function schoolServices(): static
+    {
+        return $this->state(fn (array $attributes): array => ['role' => UserRole::SchoolServices]);
+    }
 }

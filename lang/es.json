@@ -20,5 +20,7 @@
     "validation.ceremony.not_future": "La fecha de la ceremonia debe ser futura.",
     "validation.ceremony.not_weekday": "La ceremonia debe programarse en un día hábil (lunes a viernes).",
     "validation.ceremony.out_of_hours": "La ceremonia debe programarse en horario laboral (08:00–18:00).",
-    "validation.ceremony.not_passed": "La ceremonia aún no se ha realizado; no es posible titular todavía."
+    "validation.ceremony.not_passed": "La ceremonia aún no se ha realizado; no es posible titular todavía.",
+    "auth.failed": "Estas credenciales no coinciden con nuestros registros.",
+    "auth.throttle": "Demasiados intentos de inicio de sesión. Inténtalo de nuevo en :seconds segundo(s)."
 }
