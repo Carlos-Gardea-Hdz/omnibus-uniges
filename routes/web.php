@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\DemoLoginController;
+use App\Http\Controllers\Graduation\AdminDashboardController;
 use App\Http\Controllers\Graduation\CeremonyController;
 use App\Http\Controllers\Graduation\DocumentReviewController;
 use App\Http\Controllers\Graduation\FormBReviewController;
 use App\Http\Controllers\Graduation\JuryController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\Student\DashboardController;
 use App\Http\Controllers\Student\DocumentController;
 use App\Http\Controllers\Student\DocumentDownloadController;
 use App\Http\Controllers\Student\FormBController;
@@ -56,6 +58,8 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
  * in) then the 'role' alias — authorization never leaks into the domain layer.
  */
 Route::middleware(['auth', 'demo', 'role:student'])->group(function (): void {
+    Route::get('/student/dashboard', [DashboardController::class, 'index'])->name('student.dashboard');
+
     Route::get('/student/form-b', [FormBController::class, 'create'])->name('student.form-b.create');
     Route::post('/student/form-b', [FormBController::class, 'store'])->name('student.form-b.store');
     Route::put('/student/form-b', [FormBController::class, 'update'])->name('student.form-b.update');
@@ -88,6 +92,8 @@ Route::get('/student/documents/{document}/download', [DocumentDownloadController
  * (must be signed in) then the 'role' alias.
  */
 Route::middleware(['auth', 'demo', 'role:admin,super_admin,secretary'])->group(function (): void {
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
     Route::get('/admin/graduation/review', [FormBReviewController::class, 'index'])->name('admin.graduation.review');
     Route::post('/admin/graduation/{student}/approve', [FormBReviewController::class, 'approve'])->name('admin.graduation.approve');
     Route::post('/admin/graduation/{student}/reject', [FormBReviewController::class, 'reject'])->name('admin.graduation.reject');

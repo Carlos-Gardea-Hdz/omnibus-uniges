@@ -22,7 +22,8 @@ class RequiredDocumentFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->randomElement([
+            // Name is not a unique DB column; don't exhaust a tiny unique() pool.
+            'name' => fake()->randomElement([
                 'Acta de Nacimiento',
                 'Certificado de Estudios',
                 'Comprobante de Pago',

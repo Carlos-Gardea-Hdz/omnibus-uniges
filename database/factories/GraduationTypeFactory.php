@@ -23,7 +23,8 @@ class GraduationTypeFactory extends Factory
     {
         return [
             'code' => 'GT-'.Str::upper(fake()->unique()->bothify('??##')),
-            'name' => fake()->unique()->randomElement([
+            // Name is not a unique DB column; don't exhaust a tiny unique() pool.
+            'name' => fake()->randomElement([
                 'Tesis',
                 'Tesina',
                 'Promedio General',

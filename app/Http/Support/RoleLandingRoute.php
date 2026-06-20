@@ -22,8 +22,8 @@ final class RoleLandingRoute
     public static function for(UserRole $role): string
     {
         return match ($role) {
-            UserRole::Student => 'student.status',
-            UserRole::Admin, UserRole::SuperAdmin, UserRole::Secretary => 'admin.graduation.review',
+            UserRole::Student => 'student.dashboard',
+            UserRole::Admin, UserRole::SuperAdmin, UserRole::Secretary => 'admin.dashboard',
             UserRole::AssistantSecretary, UserRole::SchoolServices => 'landing',
         };
     }

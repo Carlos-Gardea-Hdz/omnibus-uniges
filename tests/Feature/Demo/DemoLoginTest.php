@@ -32,12 +32,17 @@ uses(RefreshDatabase::class);
  * seeded, so these tests do not pre-seed.
  */
 
-/** The route a freshly-provisioned preset role is expected to land on. */
+/**
+ * The route a freshly-provisioned preset role is expected to land on. Tracks
+ * RoleLandingRoute::for() — slice 007 re-points Student → student.dashboard and
+ * admin/super_admin/secretary → admin.dashboard (CONTRACT §2); the demo path
+ * resolves the entry screen through that same match, so this mirror moves with it.
+ */
 function expectedLandingRoute(UserRole $role): string
 {
     return match ($role) {
-        UserRole::Student => route('student.status'),
-        UserRole::Admin, UserRole::SuperAdmin, UserRole::Secretary => route('admin.graduation.review'),
+        UserRole::Student => route('student.dashboard'),
+        UserRole::Admin, UserRole::SuperAdmin, UserRole::Secretary => route('admin.dashboard'),
         UserRole::AssistantSecretary, UserRole::SchoolServices => route('landing'),
     };
 }

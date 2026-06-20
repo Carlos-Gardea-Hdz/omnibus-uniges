@@ -24,7 +24,9 @@ uses(RefreshDatabase::class);
  * Web validation surfaces as a 302 redirect-back with session errors, never 422.
  */
 
-it('authenticates a student and redirects to the student status board', function (): void {
+it('authenticates a student and redirects to the student dashboard', function (): void {
+    // Slice 007 re-points the student landing from student.status to the new
+    // read-only overview home (RoleLandingRoute::for, CONTRACT §2).
     $user = User::factory()->student()->create([
         'email' => 'student@uniges.test',
         'password' => 'password',
@@ -33,12 +35,14 @@ it('authenticates a student and redirects to the student status board', function
     post(route('login.store'), [
         'email' => 'student@uniges.test',
         'password' => 'password',
-    ])->assertRedirect(route('student.status'));
+    ])->assertRedirect(route('student.dashboard'));
 
     assertAuthenticatedAs($user);
 });
 
-it('authenticates a staff admin and redirects to the Form B review queue', function (): void {
+it('authenticates a staff admin and redirects to the admin dashboard', function (): void {
+    // Slice 007 re-points the staff landing from admin.graduation.review to the
+    // new admin dashboard (RoleLandingRoute::for, CONTRACT §2).
     $user = User::factory()->admin()->create([
         'email' => 'admin@uniges.test',
         'password' => 'password',
@@ -47,7 +51,7 @@ it('authenticates a staff admin and redirects to the Form B review queue', funct
     post(route('login.store'), [
         'email' => 'admin@uniges.test',
         'password' => 'password',
-    ])->assertRedirect(route('admin.graduation.review'));
+    ])->assertRedirect(route('admin.dashboard'));
 
     assertAuthenticatedAs($user);
 });
@@ -70,7 +74,7 @@ it('redirects ancillary staff roles with no console to the public landing', func
     'school services' => [UserRole::SchoolServices],
 ]);
 
-it('redirects a super admin to the same staff review queue', function (): void {
+it('redirects a super admin to the same admin dashboard', function (): void {
     $user = User::factory()->superAdmin()->create([
         'email' => 'super@uniges.test',
         'password' => 'password',
@@ -79,12 +83,12 @@ it('redirects a super admin to the same staff review queue', function (): void {
     post(route('login.store'), [
         'email' => 'super@uniges.test',
         'password' => 'password',
-    ])->assertRedirect(route('admin.graduation.review'));
+    ])->assertRedirect(route('admin.dashboard'));
 
     assertAuthenticatedAs($user);
 });
 
-it('redirects a secretary to the staff review queue', function (): void {
+it('redirects a secretary to the admin dashboard', function (): void {
     $user = User::factory()->secretary()->create([
         'email' => 'secretary@uniges.test',
         'password' => 'password',
@@ -93,7 +97,7 @@ it('redirects a secretary to the staff review queue', function (): void {
     post(route('login.store'), [
         'email' => 'secretary@uniges.test',
         'password' => 'password',
-    ])->assertRedirect(route('admin.graduation.review'));
+    ])->assertRedirect(route('admin.dashboard'));
 
     assertAuthenticatedAs($user);
 });
