@@ -14,11 +14,25 @@ export interface Flash {
     error?: string;
 }
 
+/**
+ * Public-safe demo-session descriptor shared on every Inertia response while a
+ * demo session is active (see HandleInertiaRequests::share). It is `null` for
+ * real users. SECURITY: it deliberately carries NO `demo_session_id` — that
+ * isolation token is server-only and must never reach the client.
+ */
+export interface DemoState {
+    active: true;
+    preset: string;
+    /** Unix timestamp (seconds) at which the demo session expires. */
+    expires_at: number;
+}
+
 /** Shared props injected on every Inertia response (see HandleInertiaRequests). */
 export interface SharedProps {
     auth: Auth;
     flash: Flash;
     locale: 'es' | 'en';
+    demo: DemoState | null;
 }
 
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> =

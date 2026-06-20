@@ -17,7 +17,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // The fixed, read-only demo baseline (catalogs every demo session
+        // references). Demo students are minted per session, never seeded here.
+        $this->call(DemoBaselineSeeder::class);
 
         User::factory()->create([
             'name' => 'Test User',

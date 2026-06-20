@@ -22,5 +22,8 @@
     "validation.ceremony.out_of_hours": "The ceremony must be scheduled within business hours (08:00–18:00).",
     "validation.ceremony.not_passed": "The ceremony has not taken place yet; the student cannot graduate.",
     "auth.failed": "These credentials do not match our records.",
-    "auth.throttle": "Too many login attempts. Please try again in :seconds second(s)."
+    "auth.throttle": "Too many login attempts. Please try again in :seconds second(s).",
+    "demo.expired": "Your demo session has expired. Start a new one whenever you like.",
+    "demo.blocked": "That action is disabled in demo mode — it would make a permanent change.",
+    "demo.throttled": "Too many demo sessions from this network. Please try again in a little while."
 }

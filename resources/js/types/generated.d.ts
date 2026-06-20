@@ -4,6 +4,10 @@ secretary_professor_id: number;
 vocal_professor_id: number;
 substitute_professor_id: number | null;
 };
+export type DemoLoginData = {
+preset: DemoPreset;
+};
+export enum DemoPreset { Sustentante1 = 'sustentante_1', Sustentante2 = 'sustentante_2', Sustentante3 = 'sustentante_3', Sustentante4 = 'sustentante_4', Personal = 'personal', Admin = 'admin' };
 export enum DocumentStatus { Pending = 'pending', Uploaded = 'uploaded', Approved = 'approved', Rejected = 'rejected' };
 export enum GraduationStatus { FormBPending = 'form_b_pending', FormBReview = 'form_b_review', FormBRejected = 'form_b_rejected', AnnexesPending = 'annexes_pending', AnnexIiiPending = 'annex_iii_pending', PaymentPending = 'payment_pending', JuryAssigned = 'jury_assigned', CeremonyScheduled = 'ceremony_scheduled', Graduated = 'graduated' };
 export enum JuryRole { President = 'president', Secretary = 'secretary', Vocal = 'vocal', Substitute = 'substitute' };

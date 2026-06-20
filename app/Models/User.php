@@ -15,6 +15,7 @@ use Illuminate\Notifications\Notifiable;
 
 /**
  * @property int $id
+ * @property string|null $demo_session_id
  * @property UserRole $role
  * @property-read Student|null $student
  */
@@ -33,6 +34,11 @@ class User extends Authenticatable
         'email',
         'role',
         'password',
+        // Demo mode (slice 006): NULL on real users, a UUIDv7 tag on ephemeral
+        // demo users. User intentionally has NO DemoScope — Auth and
+        // route-model-binding must resolve the demo user freely; isolation for
+        // users is by ownership plus this tag for cleanup.
+        'demo_session_id',
     ];
 
     /**

@@ -14,6 +14,7 @@ use App\Domain\Graduation\ValueObjects\Gpa;
 use App\Domain\Jury\Models\JuryAssignment;
 use App\Domain\Shared\ValueObjects\Address;
 use App\Models\User;
+use App\Support\DemoScope;
 use Database\Factories\StudentFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,6 +29,7 @@ use Illuminate\Support\Carbon;
  * A student progressing through the 9-state graduation workflow.
  *
  * @property int $id
+ * @property string|null $demo_session_id
  * @property string $control_number
  * @property float $gpa
  * @property GraduationStatus $status
@@ -51,6 +53,8 @@ final class Student extends Model
      * @var list<string>
      */
     protected $fillable = [
+        // Demo mode (slice 006): NULL on real students, a UUIDv7 tag on demo rows.
+        'demo_session_id',
         'user_id',
         'control_number',
         'program_id',
@@ -114,6 +118,16 @@ final class Student extends Model
             'is_team_project' => 'bool',
             'gpa' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Register the symmetric demo isolation scope (slice 006): real requests see
+     * only NULL-tagged students; a demo session sees only its own tag. Cleanup and
+     * cross-session provisioning bypass it with withoutGlobalScope(DemoScope::class).
+     */
+    protected static function booted(): void
+    {
+        self::addGlobalScope(new DemoScope);
     }
 
     /**

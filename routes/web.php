@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\DemoLoginController;
 use App\Http\Controllers\Graduation\CeremonyController;
 use App\Http\Controllers\Graduation\DocumentReviewController;
 use App\Http\Controllers\Graduation\FormBReviewController;
@@ -28,7 +29,22 @@ Route::get('/', LandingController::class)->name('landing');
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
+
+    // The demo chooser is a guest-facing landing screen.
+    Route::get('/demo', [DemoLoginController::class, 'create'])->name('demo.create');
 });
+
+/*
+ * Demo mode (SPEC §13): a visitor picks a preset and is provisioned a throwaway,
+ * session-scoped sandbox. Provisioning is rate-limited by IP (10/hour via the
+ * 'demo-login' limiter in AppServiceProvider) — a SEPARATE guard from the login
+ * brute-force throttle. This POST is intentionally NOT in the 'guest' group: the
+ * rate limiter (not the auth state) is the gate, so a recruiter can mint a fresh
+ * sandbox even while a prior demo session is still active, up to the per-IP cap.
+ */
+Route::post('/demo-login', [DemoLoginController::class, 'store'])
+    ->middleware('throttle:demo-login')
+    ->name('demo.store');
 
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
@@ -39,7 +55,7 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
  * watch their graduation status in real time. Gated by 'auth' (must be signed
  * in) then the 'role' alias — authorization never leaks into the domain layer.
  */
-Route::middleware(['auth', 'role:student'])->group(function (): void {
+Route::middleware(['auth', 'demo', 'role:student'])->group(function (): void {
     Route::get('/student/form-b', [FormBController::class, 'create'])->name('student.form-b.create');
     Route::post('/student/form-b', [FormBController::class, 'store'])->name('student.form-b.store');
     Route::put('/student/form-b', [FormBController::class, 'update'])->name('student.form-b.update');
@@ -58,10 +74,12 @@ Route::middleware(['auth', 'role:student'])->group(function (): void {
 /*
  * Document download (SPEC §10.4) — reached only via a temporary signed URL. The
  * controller authorizes the owning student OR any staff member, so it sits
- * outside the role groups: the signed link is the gate.
+ * outside the role groups: the signed link is the gate. The 'demo' middleware
+ * (a no-op for real sessions) publishes the demo tag so a demo visitor can
+ * resolve and download a document they uploaded inside their own sandbox.
  */
 Route::get('/student/documents/{document}/download', [DocumentDownloadController::class, 'show'])
-    ->middleware('signed')
+    ->middleware(['signed', 'demo'])
     ->name('student.documents.download');
 
 /*
@@ -69,7 +87,7 @@ Route::get('/student/documents/{document}/download', [DocumentDownloadController
  * secretaries may approve or reject a student's submission. Gated by 'auth'
  * (must be signed in) then the 'role' alias.
  */
-Route::middleware(['auth', 'role:admin,super_admin,secretary'])->group(function (): void {
+Route::middleware(['auth', 'demo', 'role:admin,super_admin,secretary'])->group(function (): void {
     Route::get('/admin/graduation/review', [FormBReviewController::class, 'index'])->name('admin.graduation.review');
     Route::post('/admin/graduation/{student}/approve', [FormBReviewController::class, 'approve'])->name('admin.graduation.approve');
     Route::post('/admin/graduation/{student}/reject', [FormBReviewController::class, 'reject'])->name('admin.graduation.reject');

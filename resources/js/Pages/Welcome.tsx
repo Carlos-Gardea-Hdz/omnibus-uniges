@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { useLocale } from '@/Contexts/LocaleContext';
 import DarkModeToggle from '@/Components/DarkModeToggle';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
+import DemoBanner from '@/Components/DemoBanner';
 
 interface WelcomeProps {
     appVersion: string;
@@ -23,6 +24,11 @@ export default function Welcome({ appVersion }: WelcomeProps) {
                         <DarkModeToggle />
                     </nav>
                 </header>
+
+                {/* Renders nothing for real visitors; shows the demo bar +
+                    exit control while a demo session is active (the landing
+                    page is the AssistantSecretary/SchoolServices demo target). */}
+                <DemoBanner />
 
                 <main
                     id="main"

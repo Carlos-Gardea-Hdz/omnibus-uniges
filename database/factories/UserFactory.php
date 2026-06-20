@@ -76,4 +76,18 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes): array => ['role' => UserRole::SchoolServices]);
     }
+
+    /**
+     * Tag this user as an ephemeral demo-session user (slice 006). The email is
+     * made deterministic from the session id so it stays unique and obviously
+     * non-real; the display name is a fixed fictional label (no faker PII).
+     */
+    public function demo(string $sessionId): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'demo_session_id' => $sessionId,
+            'email' => 'demo+'.$sessionId.'@uniges.demo',
+            'name' => 'Demo User',
+        ]);
+    }
 }

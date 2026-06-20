@@ -7,6 +7,7 @@ namespace App\Domain\Graduation\Models;
 use App\Domain\Academic\Models\RequiredDocument;
 use App\Domain\Graduation\Enums\DocumentStatus;
 use App\Models\User;
+use App\Support\DemoScope;
 use Database\Factories\StudentDocumentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,7 @@ use Illuminate\Support\Carbon;
  * (SPEC §6.3.13).
  *
  * @property int $id
+ * @property string|null $demo_session_id
  * @property int $student_id
  * @property int $required_document_id
  * @property int|null $reviewed_by
@@ -42,6 +44,8 @@ final class StudentDocument extends Model
 
     /** @var list<string> */
     protected $fillable = [
+        // Demo mode (slice 006): NULL on real documents, a UUIDv7 tag on demo rows.
+        'demo_session_id',
         'student_id',
         'required_document_id',
         'reviewed_by',
@@ -67,6 +71,15 @@ final class StudentDocument extends Model
             'reviewed_at' => 'datetime',
             'file_size' => 'integer',
         ];
+    }
+
+    /**
+     * Register the symmetric demo isolation scope (slice 006). Cleanup and
+     * cross-session tagging bypass it with withoutGlobalScope(DemoScope::class).
+     */
+    protected static function booted(): void
+    {
+        self::addGlobalScope(new DemoScope);
     }
 
     /**

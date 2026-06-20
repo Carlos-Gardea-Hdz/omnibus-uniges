@@ -5,6 +5,7 @@ import { createEcho } from '@/echo';
 import type { GraduationStatus } from '@/types/generated';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import GraduationProgress from '@/Components/GraduationProgress';
+import DemoBanner from '@/Components/DemoBanner';
 
 /**
  * Live graduation-status screen. Shows the 9-step progress bar and listens on
@@ -80,6 +81,11 @@ export default function Status({ student_id, status, control_number, full_name }
                         <LanguageSwitcher />
                     </nav>
                 </header>
+
+                {/* Demo bar + exit control while a demo session is active;
+                    renders nothing for real students (student.status is the
+                    landing target for the sustentante demo presets). */}
+                <DemoBanner />
 
                 <main id="main" className="mx-auto w-full max-w-2xl flex-1 px-6 py-8">
                     <div className="flex items-center justify-between">

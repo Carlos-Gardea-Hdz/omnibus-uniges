@@ -4,6 +4,7 @@ import { useLocale } from '@/Contexts/LocaleContext';
 import type { GraduationStatus } from '@/types/generated';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import FormError from '@/Components/form/FormError';
+import DemoBanner from '@/Components/DemoBanner';
 
 /**
  * Admin review queue for Form B (statuses FormBReview). Each pending student
@@ -106,6 +107,11 @@ export default function Review({ students }: ReviewProps) {
                         <LanguageSwitcher />
                     </nav>
                 </header>
+
+                {/* Demo bar + exit control while a demo session is active;
+                    renders nothing for real staff (admin.graduation.review is
+                    the landing target for the staff/admin demo presets). */}
+                <DemoBanner />
 
                 <main id="main" className="mx-auto w-full max-w-4xl flex-1 px-6 py-8">
                     <h1 className="text-2xl font-bold tracking-tight">{t('admin.review.title')}</h1>

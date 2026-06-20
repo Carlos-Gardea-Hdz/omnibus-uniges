@@ -72,6 +72,52 @@ class StudentFactory extends Factory
         ];
     }
 
+    /**
+     * Tag this student as an ephemeral demo-session row (slice 006). Real rows
+     * keep demo_session_id NULL; demo rows carry the per-session UUIDv7 tag so the
+     * DemoScope isolates them and demo:cleanup can purge them.
+     */
+    public function demo(string $sessionId): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'demo_session_id' => $sessionId,
+        ]);
+    }
+
+    /**
+     * Point this student at the EXISTING seeded baseline catalogs instead of
+     * minting fresh Program/GraduationType/StudyPlan rows per demo login (which
+     * would pollute the shared read-only baseline). When no baseline is seeded
+     * (e.g. an isolated test), it falls back to the default factory relations so
+     * the student still builds. The study plan is kept consistent with its program.
+     */
+    public function demoBaseline(): static
+    {
+        return $this->state(function (array $attributes): array {
+            $program = Program::query()->inRandomOrder()->first();
+            $graduationType = GraduationType::query()->inRandomOrder()->first();
+
+            if ($program === null || $graduationType === null) {
+                // No baseline seeded — defer to the default factory relations.
+                return [];
+            }
+
+            // Prefer a plan belonging to the chosen program; if the baseline has
+            // none for it, mint one tied to that program so the FK stays consistent.
+            $studyPlan = StudyPlan::query()
+                ->where('program_id', $program->id)
+                ->inRandomOrder()
+                ->first()
+                ?? StudyPlan::factory()->create(['program_id' => $program->id]);
+
+            return [
+                'program_id' => $program->id,
+                'graduation_type_id' => $graduationType->id,
+                'study_plan_id' => $studyPlan->id,
+            ];
+        });
+    }
+
     /** Student whose Format B is awaiting review. */
     public function formBReview(): static
     {

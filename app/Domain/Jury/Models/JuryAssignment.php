@@ -6,6 +6,7 @@ namespace App\Domain\Jury\Models;
 
 use App\Domain\Academic\Models\Professor;
 use App\Domain\Graduation\Models\Student;
+use App\Support\DemoScope;
 use Database\Factories\JuryAssignmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * distinct columns (president/secretary/vocal); the substitute is optional.
  *
  * @property int $id
+ * @property string|null $demo_session_id
  * @property int $student_id
  * @property int $president_professor_id
  * @property int $secretary_professor_id
@@ -38,12 +40,23 @@ final class JuryAssignment extends Model
 
     /** @var list<string> */
     protected $fillable = [
+        // Demo mode (slice 006): NULL on real assignments, a UUIDv7 tag on demo rows.
+        'demo_session_id',
         'student_id',
         'president_professor_id',
         'secretary_professor_id',
         'vocal_professor_id',
         'substitute_professor_id',
     ];
+
+    /**
+     * Register the symmetric demo isolation scope (slice 006). Cleanup and
+     * cross-session tagging bypass it with withoutGlobalScope(DemoScope::class).
+     */
+    protected static function booted(): void
+    {
+        self::addGlobalScope(new DemoScope);
+    }
 
     /**
      * @return BelongsTo<Student, $this>
