@@ -28,6 +28,12 @@ final class BeginDocumentStageAction
     public function handle(Student $student): Student
     {
         return DB::transaction(function () use ($student): Student {
+            // Serialize concurrent transitions: re-load the row under a
+            // pessimistic lock and re-read the source state from it, so a
+            // double-click / retry race loses the guard cleanly instead of
+            // double-firing the transition (the idempotent guard stays below).
+            $student = Student::query()->whereKey($student->getKey())->lockForUpdate()->firstOrFail();
+
             $from = $student->status;
             $to = GraduationStatus::AnnexIiiPending;
 

@@ -29,6 +29,12 @@ final class AssignJuryAction
     public function handle(AssignJuryData $data, Student $student): JuryAssignment
     {
         return DB::transaction(function () use ($data, $student): JuryAssignment {
+            // Serialize concurrent transitions: re-load the row under a
+            // pessimistic lock and re-read state/payment from it, so a
+            // double-click / retry / two-staff race loses the guard cleanly
+            // instead of seating two juries and double-firing the transition.
+            $student = Student::query()->whereKey($student->getKey())->lockForUpdate()->firstOrFail();
+
             if (! $student->payment_verified) {
                 throw ValidationException::withMessages([
                     'payment_verified' => __('validation.jury.payment_unverified'),

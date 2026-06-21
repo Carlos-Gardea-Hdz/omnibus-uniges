@@ -219,3 +219,74 @@ it('allows a secretary to review documents', function (): void {
 
     expect($documents->first()->fresh()->status)->toBe(DocumentStatus::Approved);
 });
+
+/*
+ * WARN 3 — entry-state gate. The {studentDocument} route binds the document
+ * directly, so without a guard staff could approve/reject a document for a
+ * student already PAST the document stage. Both Actions now assert the owning
+ * student is in AnnexIiiPending; an out-of-stage review is a graceful 302 +
+ * 'document' field error with no mutation.
+ */
+
+it('refuses to approve a document for a student past the document stage (302, no mutation)', function (): void {
+    Event::fake([DocumentStatusChanged::class, StudentStatusChanged::class]);
+
+    $admin = User::factory()->admin()->create();
+    [$student, $documents] = studentWithUploadedDocs(2);
+
+    // Move the student forward, out of the review stage (status is guarded —
+    // set it directly, not via mass-assignment, WARN 5).
+    $student->status = GraduationStatus::PaymentPending;
+    $student->save();
+    $target = $documents->first();
+
+    actingAs($admin)
+        ->post(route('admin.graduation.documents.approve', $target))
+        ->assertRedirect()
+        ->assertSessionHasErrors('document');
+
+    // Untouched: still the uploaded state, no reviewer recorded.
+    expect($target->fresh()->status)->toBe(DocumentStatus::Uploaded)
+        ->and($target->fresh()->reviewed_by)->toBeNull()
+        ->and($student->fresh()->status)->toBe(GraduationStatus::PaymentPending);
+
+    Event::assertNotDispatched(DocumentStatusChanged::class);
+    Event::assertNotDispatched(StudentStatusChanged::class);
+});
+
+it('refuses to reject a document for a student past the document stage (302, no mutation)', function (): void {
+    Event::fake([DocumentStatusChanged::class]);
+
+    $admin = User::factory()->admin()->create();
+    [$student, $documents] = studentWithUploadedDocs(2);
+
+    // status is guarded (WARN 5) — set it directly, not via mass-assignment.
+    $student->status = GraduationStatus::PaymentPending;
+    $student->save();
+    $target = $documents->first();
+
+    actingAs($admin)
+        ->post(route('admin.graduation.documents.reject', $target), [
+            'rejection_reason' => 'El documento está incompleto, falta la última página.',
+        ])
+        ->assertRedirect()
+        ->assertSessionHasErrors('document');
+
+    expect($target->fresh()->status)->toBe(DocumentStatus::Uploaded)
+        ->and($target->fresh()->rejection_reason)->toBeNull()
+        ->and($target->fresh()->reviewed_by)->toBeNull();
+
+    Event::assertNotDispatched(DocumentStatusChanged::class);
+});
+
+it('approves a document for a student IN the document stage (AnnexIiiPending) — gate passes', function (): void {
+    $admin = User::factory()->admin()->create();
+    [, $documents] = studentWithUploadedDocs(2);
+
+    actingAs($admin)
+        ->post(route('admin.graduation.documents.approve', $documents->first()))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($documents->first()->fresh()->status)->toBe(DocumentStatus::Approved);
+});

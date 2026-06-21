@@ -48,14 +48,20 @@ final class Student extends Model
     use SoftDeletes;
 
     /**
-     * The attributes that are mass assignable.
+     * Mass-assignable attributes (defense-in-depth, WARN 5).
+     *
+     * Deliberately ONLY the student-supplied Form B intake fields, which the
+     * SubmitFormBAction fills from the validated DTO. Workflow flags and identity
+     * columns (status, form_b_approved, payment_verified, payment_reference,
+     * user_id, demo_session_id, diploma_folio, record_book/sheet, the *_at
+     * timestamps, ceremony_*, graduation_date) are NOT fillable: the Actions set
+     * them explicitly via direct assignment, so a stray fill() can never escalate
+     * a student's state or rebind their identity. Factories bypass guarding, so
+     * seeding/tests are unaffected.
      *
      * @var list<string>
      */
     protected $fillable = [
-        // Demo mode (slice 006): NULL on real students, a UUIDv7 tag on demo rows.
-        'demo_session_id',
-        'user_id',
         'control_number',
         'program_id',
         'graduation_type_id',
@@ -68,32 +74,37 @@ final class Student extends Model
         'age',
         'phone',
         'mobile',
-        'status',
-        'workflow_metadata',
         'gpa',
         'enrollment_date',
-        'graduation_date',
         'thesis_title',
         'thesis_abstract',
-        'form_b_submitted_at',
-        'form_b_approved',
-        'form_b_observations',
-        'annex_iii_completed',
-        'documents_completed_at',
-        'payment_reference',
-        'payment_verified',
-        'paid_at',
-        'ceremony_date',
-        'ceremony_location',
-        'diploma_folio',
-        'record_book',
-        'record_sheet',
         'address_street',
         'address_neighborhood',
         'address_ext_number',
         'address_int_number',
         'address_postal_code',
         'is_team_project',
+    ];
+
+    /**
+     * Attributes hidden from array/JSON serialization (defense-in-depth, WARN 5).
+     * Identity/PII columns never need to leak through an accidental ->toArray()
+     * or a Resource that forgets ->only(); controllers project an explicit field
+     * list, so hiding these has no effect on the intended payloads.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'demo_session_id',
+        'user_id',
+        'payment_reference',
+        'phone',
+        'mobile',
+        'address_street',
+        'address_neighborhood',
+        'address_ext_number',
+        'address_int_number',
+        'address_postal_code',
     ];
 
     /**

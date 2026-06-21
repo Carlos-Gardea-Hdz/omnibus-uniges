@@ -8,6 +8,7 @@ use App\Domain\Graduation\Enums\DocumentStatus;
 use App\Domain\Graduation\Enums\GraduationStatus;
 use App\Domain\Graduation\Events\DocumentStatusChanged;
 use App\Domain\Graduation\Events\StudentStatusChanged;
+use App\Domain\Graduation\Exceptions\DocumentReviewNotAllowedException;
 use App\Domain\Graduation\Models\Student;
 use App\Domain\Graduation\Models\StudentDocument;
 use App\Domain\Graduation\Services\DocumentCompletionChecker;
@@ -31,13 +32,26 @@ final class ApproveDocumentAction
     public function handle(StudentDocument $document, User $reviewer): StudentDocument
     {
         return DB::transaction(function () use ($document, $reviewer): StudentDocument {
+            // Entry-state gate (+ serialize concurrent reviews): re-load the
+            // owning student under a pessimistic lock and re-read state from it.
+            // Documents may only be reviewed while the student is in the
+            // document stage (AnnexIiiPending); a direct {studentDocument} bind
+            // on a later-stage student is rejected cleanly, never silently
+            // mutated, and a double-click races on the lock instead of the read.
+            $student = Student::query()
+                ->whereKey($document->student_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($student->status !== GraduationStatus::AnnexIiiPending) {
+                throw DocumentReviewNotAllowedException::notInReviewStage($student->status);
+            }
+
             $document->status = DocumentStatus::Approved;
             $document->reviewed_by = $reviewer->id;
             $document->reviewed_at = now();
             $document->save();
 
-            /** @var Student $student */
-            $student = $document->student;
             $complete = $this->completionChecker->allRequiredApproved($student);
 
             DocumentStatusChanged::dispatch($document, $complete);

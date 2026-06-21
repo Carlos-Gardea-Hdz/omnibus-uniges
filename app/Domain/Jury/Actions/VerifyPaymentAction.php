@@ -18,13 +18,19 @@ final class VerifyPaymentAction
 {
     public function handle(Student $student): Student
     {
-        if ($student->status !== GraduationStatus::PaymentPending) {
-            throw ValidationException::withMessages([
-                'payment' => __('validation.payment.wrong_state'),
-            ]);
-        }
-
         return DB::transaction(function () use ($student): Student {
+            // Serialize concurrent mutations: re-load the row under a
+            // pessimistic lock and re-read state from it, so a double-click /
+            // retry / two-staff race re-checks the precondition against the
+            // committed row instead of a stale read.
+            $student = Student::query()->whereKey($student->getKey())->lockForUpdate()->firstOrFail();
+
+            if ($student->status !== GraduationStatus::PaymentPending) {
+                throw ValidationException::withMessages([
+                    'payment' => __('validation.payment.wrong_state'),
+                ]);
+            }
+
             $student->payment_verified = true;
             $student->save();
 

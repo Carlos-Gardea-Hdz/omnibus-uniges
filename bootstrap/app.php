@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Academic\Exceptions\CatalogInUseException;
+use App\Domain\Graduation\Exceptions\DocumentReviewNotAllowedException;
 use App\Domain\Graduation\Exceptions\InvalidStatusTransitionException;
 use App\Http\Middleware\DemoSessionMiddleware;
 use App\Http\Middleware\EnsureRole;
@@ -63,5 +64,15 @@ return Application::configure(basePath: dirname(__DIR__))
             return $request->expectsJson()
                 ? response()->json(['message' => $e->getMessage()], 422)
                 : back()->withErrors(['catalog' => $e->getMessage()]);
+        });
+
+        // Reviewing a document for a student who is not in the document stage
+        // (AnnexIiiPending) is a workflow guard, not a server fault: the same
+        // graceful 302 + a 'document' field error on web (422 for JSON), never
+        // a silent out-of-stage mutation or an unhandled 500.
+        $exceptions->render(function (DocumentReviewNotAllowedException $e, Request $request) {
+            return $request->expectsJson()
+                ? response()->json(['message' => $e->getMessage()], 422)
+                : back()->withErrors(['document' => $e->getMessage()]);
         });
     })->create();

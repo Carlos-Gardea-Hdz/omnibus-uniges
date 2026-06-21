@@ -108,7 +108,9 @@ it('lets a rejected student resubmit: status returns to review and observations 
         'gpa' => 91.0,
         'enrollment_date' => '2019-08-19',
         'program_id' => $program->id,
-        'graduation_type_id' => GraduationType::factory()->create()->id,
+        // No advisor in this payload, so pin a type that does not require one
+        // (the factory flag is random) — WARN 2.
+        'graduation_type_id' => GraduationType::factory()->withoutAdvisor()->create()->id,
         'study_plan_id' => StudyPlan::factory()->for($program)->create()->id,
     ];
 

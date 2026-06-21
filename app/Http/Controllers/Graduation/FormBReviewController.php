@@ -38,7 +38,7 @@ final class FormBReviewController extends Controller
                     'program_name' => $program->name,
                     'graduation_type_name' => $graduationType->name,
                     'gpa' => $student->gpa,
-                    'status' => $student->status,
+                    'status' => $student->status->value,
                     'form_b_submitted_at' => $student->form_b_submitted_at?->toIso8601String(),
                 ];
             });

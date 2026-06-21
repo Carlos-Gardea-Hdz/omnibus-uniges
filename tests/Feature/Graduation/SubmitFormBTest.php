@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Academic\Models\GraduationType;
+use App\Domain\Academic\Models\Professor;
 use App\Domain\Academic\Models\Program;
 use App\Domain\Academic\Models\StudyPlan;
 use App\Domain\Graduation\Enums\GraduationStatus;
@@ -42,7 +43,10 @@ function formBPayload(array $overrides = []): array
         'gpa' => 88.5,
         'enrollment_date' => '2019-08-19',
         'program_id' => $program->id,
-        'graduation_type_id' => GraduationType::factory()->create()->id,
+        // Default to a type that does NOT require an advisor so these payloads
+        // (which omit advisor_id) stay valid regardless of the random factory
+        // flag; the requires_advisor branches are covered explicitly below.
+        'graduation_type_id' => GraduationType::factory()->withoutAdvisor()->create()->id,
         'study_plan_id' => StudyPlan::factory()->for($program)->create()->id,
         'thesis_title' => 'Sistema de titulación en tiempo real',
         'phone' => '6181234567',
@@ -156,4 +160,105 @@ it('rejects a control number already registered to another student with a field 
         ->post(route('student.form-b.store'), formBPayload(['control_number' => '20231234']))
         ->assertRedirect()
         ->assertSessionHasErrors('control_number');
+});
+
+/*
+ * WARN 2 — requires_advisor enforcement. A GraduationType flagged
+ * requires_advisor cannot have its Form B submitted with advisor_id = null;
+ * a type that does not require one accepts a null advisor.
+ */
+
+it('rejects a Form B with no advisor when the graduation type requires one (302, nothing persisted)', function (): void {
+    Event::fake([StudentStatusChanged::class]);
+
+    $user = User::factory()->student()->create();
+    $student = Student::factory()->for($user)->create([
+        'status' => GraduationStatus::FormBPending->value,
+        'advisor_id' => null,
+    ]);
+
+    $typeRequiringAdvisor = GraduationType::factory()->requiresAdvisor()->create();
+
+    actingAs($user)
+        ->post(route('student.form-b.store'), formBPayload([
+            'graduation_type_id' => $typeRequiringAdvisor->id,
+            'advisor_id' => null,
+        ]))
+        ->assertRedirect()
+        ->assertSessionHasErrors('advisor_id');
+
+    $student->refresh();
+
+    expect($student->status)->toBe(GraduationStatus::FormBPending)
+        ->and($student->advisor_id)->toBeNull();
+
+    Event::assertNotDispatched(StudentStatusChanged::class);
+});
+
+it('accepts a Form B with an advisor when the graduation type requires one', function (): void {
+    $user = User::factory()->student()->create();
+    Student::factory()->for($user)->create([
+        'status' => GraduationStatus::FormBPending->value,
+    ]);
+
+    $typeRequiringAdvisor = GraduationType::factory()->requiresAdvisor()->create();
+    $advisor = Professor::factory()->create();
+
+    actingAs($user)
+        ->post(route('student.form-b.store'), formBPayload([
+            'graduation_type_id' => $typeRequiringAdvisor->id,
+            'advisor_id' => $advisor->id,
+        ]))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+});
+
+it('accepts a Form B with no advisor when the graduation type does not require one', function (): void {
+    $user = User::factory()->student()->create();
+    $student = Student::factory()->for($user)->create([
+        'status' => GraduationStatus::FormBPending->value,
+    ]);
+
+    $typeWithoutAdvisor = GraduationType::factory()->withoutAdvisor()->create();
+
+    actingAs($user)
+        ->post(route('student.form-b.store'), formBPayload([
+            'graduation_type_id' => $typeWithoutAdvisor->id,
+            'advisor_id' => null,
+        ]))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($student->fresh()->status)->toBe(GraduationStatus::FormBReview);
+});
+
+/*
+ * NIT — sane bounds on age and thesis_abstract. Out-of-range values are a
+ * graceful 302 field error, never an unbounded write or a 500.
+ */
+
+it('rejects an out-of-range age with a session error', function (int $age): void {
+    $user = User::factory()->student()->create();
+    Student::factory()->for($user)->create([
+        'status' => GraduationStatus::FormBPending->value,
+    ]);
+
+    actingAs($user)
+        ->post(route('student.form-b.store'), formBPayload(['age' => $age]))
+        ->assertRedirect()
+        ->assertSessionHasErrors('age');
+})->with([14, 121, 999]);
+
+it('rejects an over-long thesis abstract with a session error', function (): void {
+    $user = User::factory()->student()->create();
+    Student::factory()->for($user)->create([
+        'status' => GraduationStatus::FormBPending->value,
+    ]);
+
+    actingAs($user)
+        ->post(route('student.form-b.store'), formBPayload([
+            'thesis_abstract' => str_repeat('a', 5001),
+        ]))
+        ->assertRedirect()
+        ->assertSessionHasErrors('thesis_abstract');
 });

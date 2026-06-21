@@ -32,6 +32,12 @@ final class MarkAsGraduatedAction
     public function handle(Student $student): Student
     {
         return DB::transaction(function () use ($student): Student {
+            // Serialize concurrent transitions: re-load the row under a
+            // pessimistic lock and re-read state/ceremony from it, so a
+            // double-click / retry / two-staff race loses the guard cleanly
+            // instead of minting a second diploma folio and re-firing events.
+            $student = Student::query()->whereKey($student->getKey())->lockForUpdate()->firstOrFail();
+
             $ceremonyDate = $student->ceremony_date;
 
             if ($ceremonyDate === null || Carbon::parse($ceremonyDate)->isFuture()) {

@@ -29,6 +29,12 @@ final class SubmitFormBAction
         $this->assertControlNumberAvailable($data->control_number, $student);
 
         return DB::transaction(function () use ($data, $student): Student {
+            // Serialize concurrent transitions: re-load the row under a
+            // pessimistic lock and re-read the source state from it, so a
+            // double-click / retry race loses the FormBReview guard cleanly
+            // instead of double-firing the transition (and its event).
+            $student = Student::query()->whereKey($student->getKey())->lockForUpdate()->firstOrFail();
+
             $from = $student->status;
 
             $student->fill([

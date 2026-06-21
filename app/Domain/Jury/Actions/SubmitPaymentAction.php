@@ -22,6 +22,12 @@ final class SubmitPaymentAction
     public function handle(SubmitPaymentData $data, Student $student): Student
     {
         return DB::transaction(function () use ($data, $student): Student {
+            // Serialize concurrent mutations: re-load the row under a
+            // pessimistic lock and re-read state from it, so a double-click /
+            // retry race re-checks the precondition against the committed row
+            // instead of a stale read.
+            $student = Student::query()->whereKey($student->getKey())->lockForUpdate()->firstOrFail();
+
             if ($student->status !== GraduationStatus::PaymentPending) {
                 throw ValidationException::withMessages([
                     'payment_reference' => __('validation.payment.wrong_state'),
